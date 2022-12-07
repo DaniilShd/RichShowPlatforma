@@ -1,6 +1,11 @@
 package dbrepo
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"github.com/DaniilShd/RichShowPlatforma/intermal/config"
+	"github.com/DaniilShd/RichShowPlatforma/intermal/repository"
+)
 
 type postgresDBRepo struct {
 	App *config.AppConfig
