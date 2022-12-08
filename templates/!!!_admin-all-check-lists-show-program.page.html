@@ -5,7 +5,7 @@
 {{end}}
 
 {{define "page-title"}}
-    Мастер-классы
+    Шоу программы
 {{end}}
 
 {{define "content"}}
@@ -15,21 +15,21 @@
 <!-- <div class="row justify-content-end"> -->
 <div class="">
     <!-- <div class="col-3"> -->
-        <a href="/admin/master-class-new" class="btn btn-success fw-bold ">Добавить мастер-класс</a>
+        <a href="/admin/ckeck-list-new/show-program" class="btn btn-success fw-bold ">Добавить чек-лист</a>
     <!-- </div> -->
     
 </div>
 <div class="clearfix"></div>
     <div class="col-md-12">
-        {{$res := index .Data "master-class"}}
+        {{$res := index .Data "check-lists-show-program"}}
 
-        <table class="table table-striped table-hover" id="all-master-class">
+        <table class="table table-striped table-hover" id="all-check-lists-show-program">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Название</th>
                     <!-- <th>Описание</th> -->
-                    <th>Название чек-листа</th>
+              
                     <th></th>
                 </tr>
             </thead>
@@ -39,13 +39,13 @@
                     
                     <td>{{.ID}}</td>
                 
-                    <td><a href="/admin/master-class/all/{{.ID}}">
+                    <td><a href="/admin/check-lists-show-program/all/{{.ID}}">
                         {{.Name}}
                     </a></td>
                     <!-- <td>{{.Description}}</td> -->
-                    <td>{{.CheckList.Name}}</td>
+    
                     <td>
-                        <a class="" onclick="deleteMasterClass({{.ID}})" aria-expanded="false" aria-controls="animators">
+                        <a class="" onclick="deleteChecklist({{.ID}})" aria-expanded="false" aria-controls="animators">
                             <i class="ti-trash menu-icon"></i>
                           </a>
                     </td>
@@ -65,18 +65,18 @@
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function(){
-        const dataTable = new simpleDatatables.DataTable("#all-master-class", {
+        const dataTable = new simpleDatatables.DataTable("#all-check-lists-show-program", {
         select: 0, sort: "desc",
 })
     })
     
-    function deleteMasterClass(id) {
+    function deleteChecklist(id) {
         attention.custom({
             icon: 'warning',
             msg: 'Вы уверены?',
             callback: function(result) {
                 if (result !== false) {
-                    window.location.href = "/admin/delete-master-class/" + id;
+                    window.location.href = "/admin/delete-check-list/show-programs/" + id;
                 }
             }
         })

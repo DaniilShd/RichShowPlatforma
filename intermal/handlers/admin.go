@@ -10,6 +10,7 @@ import (
 	"github.com/DaniilShd/RichShowPlatforma/intermal/helpers"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/models"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/render"
+	"github.com/go-chi/chi"
 )
 
 func (m *Repository) Doashboard(w http.ResponseWriter, r *http.Request) {
@@ -180,8 +181,7 @@ func (m *Repository) NewPostMasterClass(w http.ResponseWriter, r *http.Request) 
 
 func (m *Repository) DeleteMasterClass(w http.ResponseWriter, r *http.Request) {
 
-	exploded := strings.Split(r.RequestURI, "/")
-	id, err := strconv.Atoi(exploded[3])
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
@@ -204,14 +204,93 @@ func (m *Repository) LeadsCalendar(w http.ResponseWriter, r *http.Request) {
 }
 
 // Chek-lists ------------------------------------------------------------------------------------------------------------
-func (m *Repository) CheckListMasterClass(w http.ResponseWriter, r *http.Request) {
+
+const (
+	CHECK_LISTS_TYPE_OF_SHOW         = 1
+	CHECK_LISTS_TYPE_OF_MASTER_CLASS = 2
+	CHECK_LISTS_TYPE_OF_ANIMATION    = 3
+)
+
+// Check lists all
+func (m *Repository) CheckListAll(w http.ResponseWriter, r *http.Request) {
+
+	exploded := strings.Split(r.RequestURI, "/")
+	src := exploded[3]
+	var typeOfCheckList int
+	var title string
+	switch src {
+	case "show-program":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
+		title = "Шоу программы"
+	case "master-class":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
+		title = "Мастер-классы"
+	case "animation":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
+		title = "Анимационные программы"
+	}
+
+	checkLists, err := m.DB.GetAllCheckListsOfType(typeOfCheckList)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	data := make(map[string]interface{})
+	data["check-lists"] = checkLists
+	stringMap := make(map[string]string)
+	stringMap["source"] = src
+	stringMap["title"] = title
+
+	render.Template(w, r, "admin-all-check-lists.page.html", &models.TemplateData{
+		Data:      data,
+		StringMap: stringMap,
+	})
+}
+
+// Create new ckeck-list
+func (m *Repository) NewCheckList(w http.ResponseWriter, r *http.Request) {
+
+	exploded := strings.Split(r.RequestURI, "/")
+	src := exploded[3]
+	stringMap := make(map[string]string)
+	stringMap["source"] = src
+
+	checkList := models.CheckList{}
+
+	data := make(map[string]interface{})
+	data["check-list"] = checkList
+	s
+
+	render.Template(w, r, "admin-check-list-new.page.html", &models.TemplateData{
+		Data: data,
+		Form: forms.New(nil),
+	})
+}
+
+func (m *Repository) NewPostCheckList(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (m *Repository) CheckListShow(w http.ResponseWriter, r *http.Request) {
+//Delete master-class Chek-List
 
-}
+func (m *Repository) DeleteCheсkList(w http.ResponseWriter, r *http.Request) {
 
-func (m *Repository) CheckListAnimation(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	src := exploded[3]
 
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	err = m.DB.DeleteCheckListByID(id)
+	if err != nil {
+		fmt.Println(err)
+		m.App.Session.Put(r.Context(), "error", "Чек лист используется")
+		http.Redirect(w, r, fmt.Sprintf("/admin/check-list/%s/all", src), http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/admin/check-lists/%s/all", src), http.StatusSeeOther)
 }

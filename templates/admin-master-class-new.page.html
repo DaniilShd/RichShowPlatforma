@@ -43,11 +43,11 @@
                 {{end}}
                 <textarea required type="text" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}"  rows="9" id="description" name="description">{{$res.Description}}</textarea>
               </div>
-
+              <label for="select_check" class="form-label">Выберете чек-лист из списка</label>
               {{with .Form.Errors.Get "id_check_list"}}
                 <label for="" class="text-danger">{{.}}</label>
                 {{end}}
-              <select name="id_check_list" class="form-select mb-3" aria-label="">
+              <select name="id_check_list" id="select_check" class="form-select mb-3" aria-label="">
                 <option value="" selected></option>
 
                 {{range $checkList}}

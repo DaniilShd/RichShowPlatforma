@@ -97,7 +97,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		fmt.Println(name)
+		// fmt.Println(name)
 		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
 			log.Fatal(err)

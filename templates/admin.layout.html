@@ -14,9 +14,10 @@
         <!-- plugin css for this page -->
         <!-- End plugin css for this page -->
         <!-- inject:css -->
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
         <link rel="stylesheet" href="/static/admin/css/style.css"> 
         <!-- endinject -->
-        <link rel="shortcut icon" href="/static/admin/images/favicon.png"/>
+        <link rel="shortcut icon" href="/static/favicon/favicon-16x16.png"/>
 
         {{block "css" . }}
 
@@ -74,9 +75,10 @@
                     </a>
                     <div class="collapse" id="check_list">
                       <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"> <a class="nav-link" href="/admin/check-list-master-class">Мастер-класс</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="/admin/check-list-show">Шоу программы</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="/admin/check-list-animation">Анимация</a></li>
+                        
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/show-program/all">Шоу программы</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/master-class/all">Мастер-классы</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/animation/all">Анимация</a></li>
                       </ul>
                     </div>
                   </li>
@@ -96,9 +98,9 @@
                     </a>
                     <div class="collapse" id="animators">
                       <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"> <a class="nav-link" href="/admin/animator-all">Все аниматоры</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="/admin/animator-new">Новый аниматор</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="/send-mail-animator">Рассылка</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/animators">Все аниматоры</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/new-animator">Новый аниматор</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/send-mail-animators">Рассылка</a></li>
 
                         
                       </ul>
@@ -165,7 +167,13 @@
     <!-- Custom js for this page-->
     <script src="/static/admin/js/dashboard.js"></script>
     <!-- End custom js for this page-->
+    <script src="https://unpkg.com/notie"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/js/app.js"></script>
     <script>
+
+      let attention = Prompt();
+
         function notify(msg, msgType) {
         notie.alert({
         type: msgType, // optional, default = 4, enum: [1, 2, 3, 4, 5, 'success', 'warning', 'error', 'info', 'neutral']
@@ -193,6 +201,7 @@
     
       {{with .Flash}}
       notify("{{.}}", "success")
+      console.log("123")
       {{end}}
     
       {{with .Warning}}

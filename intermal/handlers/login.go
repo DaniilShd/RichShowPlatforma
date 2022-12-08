@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/DaniilShd/RichShowPlatforma/intermal/forms"
@@ -44,7 +43,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 
 	id, access_level, _, err := m.DB.Authenticate(login, password)
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 		m.App.Session.Put(r.Context(), "error", "Неверный логин или пароль")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -52,7 +51,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 
 	m.App.Session.Put(r.Context(), "user_id", id)
 	m.App.Session.Put(r.Context(), "access_level", access_level)
-	// m.App.Session.Put(r.Context(), "flash", "Успешный вход")
+	m.App.Session.Put(r.Context(), "flash", "Успешный вход")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 

@@ -33,8 +33,7 @@ func routes() *chi.Mux {
 		mux.Get("/", handlers.Repo.HomeManager)
 		mux.Get("/dashboard", handlers.Repo.Doashboard)
 
-		//Master-class
-		mux.Get("/master-class-new", handlers.Repo.NewMasterClass)
+		//Master-class---------------------------------------------------------------------------------------------
 		mux.Get("/master-class-all", handlers.Repo.AllMasterClass)
 		//Changes master-class
 		mux.Get("/master-class/{src}/{id}", handlers.Repo.ShowMasterClass)
@@ -45,13 +44,16 @@ func routes() *chi.Mux {
 		//Delete master-class
 		mux.Get("/delete-master-class/{id}", handlers.Repo.DeleteMasterClass)
 
-		//Leads calendar
-		mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
+		//Check-lists--------------------------------------------------------------------------------------------
+		mux.Get("/check-lists/{src}/all", handlers.Repo.CheckListAll)
+		//Create new check-list
+		mux.Get("/check-lists-new/{src}", handlers.Repo.NewCheckList)
+		mux.Post("/check-lists-new/{src}", handlers.Repo.NewPostCheckList)
+		//delete any check-list
+		mux.Get("/delete-check-list/{src}/{id}", handlers.Repo.DeleteCheсkList)
 
-		//Check lists
-		mux.Get("/check-list-master-class", handlers.Repo.CheckListMasterClass)
-		mux.Get("/check-list-show", handlers.Repo.CheckListShow)
-		mux.Get("/admin/check-list-animation", handlers.Repo.CheckListAnimation)
+		//Leads calendar------------------------------------------------------------------------------------------
+		mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
 
 		//Animators
 		mux.Get("/animator-all", handlers.Repo.Doashboard)

@@ -44,8 +44,8 @@
                 {{end}}
                 <textarea required type="text" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}"  rows="9" id="description" name="description">{{$res.Description}}</textarea>
               </div>
-
-              <select name="id_check_list" class="form-select mb-3" aria-label="">
+              <label for="select_check" class="form-label">Выберете чек-лист из списка</label>
+              <select name="id_check_list" id="select_check" class="form-select mb-3" aria-label="">
                 <option value="{{$res.CheckList.ID}}" selected>{{$res.CheckList.Name}}</option>
 
                 {{range $checkList}}
