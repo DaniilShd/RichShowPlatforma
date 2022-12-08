@@ -65,11 +65,35 @@
                       <span class="menu-title">Мастер-классы</span>
                     </a>
                   </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/admin/program-show">
+                      <i class="ti-star menu-icon"></i>
+                      <span class="menu-title">Шоу программы</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/admin/animations">
+                      <i class="ti-face-smile menu-icon"></i>
+                      <span class="menu-title">Анимация</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/admin/quests">
+                      <i class="ti-microphone menu-icon"></i>
+                      <span class="menu-title">Вечеринки и квесты</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/admin/others">
+                      <i class="ti-rocket menu-icon"></i>
+                      <span class="menu-title">Другое</span>
+                    </a>
+                  </li>
 
 
                   <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#check_list" aria-expanded="false" aria-controls="check_list">
-                      <i class="ti-palette menu-icon"></i>
+                      <i class="ti-files menu-icon"></i>
                       <span class="menu-title">Чек-листы</span>
                       <i class="menu-arrow"></i>
                     </a>
@@ -79,6 +103,8 @@
                         <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/show-program">Шоу программы</a></li>
                         <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/class-master">Мастер-классы</a></li>
                         <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/animation">Анимация</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/parties">Вечеринки и квесты</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-lists/other">Другое</a></li>
                       </ul>
                     </div>
                   </li>
@@ -201,7 +227,7 @@
     
       {{with .Flash}}
       notify("{{.}}", "success")
-      console.log("123")
+      console.log("success")
       {{end}}
     
       {{with .Warning}}

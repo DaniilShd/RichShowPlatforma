@@ -26,12 +26,6 @@ func (m *postgresDBRepo) GetAllCheckList() (*[]models.CheckList, error) {
 	from check_list_points
 	where id_check_list = $1
 	`
-
-	queryNameOfType := `
-	select name_type 
-	from check_list_type
-	where id_type_of_list = $1
-	`
 	rows, err := m.DB.QueryContext(ctx, queryCheckLists)
 	if err != nil {
 		return nil, err
@@ -39,8 +33,7 @@ func (m *postgresDBRepo) GetAllCheckList() (*[]models.CheckList, error) {
 
 	for rows.Next() {
 		var checklist models.CheckList
-		var idType int
-		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &idType)
+		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList)
 		if err != nil {
 			return nil, err
 		}
@@ -64,12 +57,6 @@ func (m *postgresDBRepo) GetAllCheckList() (*[]models.CheckList, error) {
 		}
 
 		checklist.NameOfPoints = namePoints
-
-		rowName := m.DB.QueryRowContext(ctx, queryNameOfType, idType)
-		err = rowName.Scan(&checklist.TypeOfList)
-		if err != nil {
-			return nil, err
-		}
 
 		checklists = append(checklists, checklist)
 	}
@@ -97,20 +84,13 @@ func (m *postgresDBRepo) GetCheckListByID(id int) (*models.CheckList, error) {
 	from check_list_points
 	where id_check_list = $1
 	`
-
-	queryNameOfType := `
-	select name_type 
-	from check_list_type
-	where id_type_of_list = $1
-	`
 	row := m.DB.QueryRowContext(ctx, queryCheckList, id)
 
 	if err := row.Err(); err != nil {
 		return nil, err
 	}
 
-	var idType int
-	err := row.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &idType)
+	err := row.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList)
 	if err != nil {
 		return nil, err
 	}
@@ -134,12 +114,6 @@ func (m *postgresDBRepo) GetCheckListByID(id int) (*models.CheckList, error) {
 
 	checklist.NameOfPoints = namePoints
 
-	rowName := m.DB.QueryRowContext(ctx, queryNameOfType, idType)
-	err = rowName.Scan(&checklist.TypeOfList)
-	if err != nil {
-		return nil, err
-	}
-
 	return &checklist, nil
 }
 
@@ -161,11 +135,6 @@ func (m *postgresDBRepo) GetAllCheckListsOfType(id_type_of_list int) (*[]models.
 	where id_check_list = $1
 	`
 
-	queryNameOfType := `
-	select name_type 
-	from check_list_type
-	where id_type_of_list = $1
-	`
 	rows, err := m.DB.QueryContext(ctx, queryCheckLists, id_type_of_list)
 	if err != nil {
 		return nil, err
@@ -173,8 +142,8 @@ func (m *postgresDBRepo) GetAllCheckListsOfType(id_type_of_list int) (*[]models.
 
 	for rows.Next() {
 		var checklist models.CheckList
-		var idType int
-		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &idType)
+
+		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList)
 		if err != nil {
 			return nil, err
 		}
@@ -198,12 +167,6 @@ func (m *postgresDBRepo) GetAllCheckListsOfType(id_type_of_list int) (*[]models.
 		}
 
 		checklist.NameOfPoints = namePoints
-
-		rowName := m.DB.QueryRowContext(ctx, queryNameOfType, idType)
-		err = rowName.Scan(&checklist.TypeOfList)
-		if err != nil {
-			return nil, err
-		}
 
 		checklists = append(checklists, checklist)
 	}
@@ -299,22 +262,20 @@ func (m *postgresDBRepo) UpdateCheckList(checkList *models.CheckList) error {
 	where id_check_list = $3
 	`
 
-	var id int
-	if err := m.DB.QueryRowContext(ctx, query,
+	_, err := m.DB.ExecContext(ctx, query,
 		checkList.Name,
 		checkList.Description,
-		checkList.TypeOfList).Scan(&id); err != nil {
+		checkList.ID)
+	if err != nil {
 		return err
 	}
-
-	fmt.Println(id)
 
 	queryNamesDelete := `delete
 	from check_list_points 
 	where id_check_list = $1
 	`
 
-	_, err := m.DB.ExecContext(ctx, queryNamesDelete, checkList.ID)
+	_, err = m.DB.ExecContext(ctx, queryNamesDelete, checkList.ID)
 	if err != nil {
 		return err
 	}

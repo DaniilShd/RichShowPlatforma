@@ -4,6 +4,6 @@ type CheckList struct {
 	ID           int
 	Name         string
 	Description  string
-	TypeOfList   string
+	TypeOfList   int
 	NameOfPoints []string
 }
