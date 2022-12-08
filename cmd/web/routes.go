@@ -33,7 +33,7 @@ func routes() *chi.Mux {
 		mux.Get("/", handlers.Repo.HomeManager)
 		mux.Get("/dashboard", handlers.Repo.Doashboard)
 
-		//Master-class---------------------------------------------------------------------------------------------
+		//Master-class----------------------------------------------------------------------------------------------------------------------------
 		mux.Get("/master-class", handlers.Repo.AllMasterClass)
 		//Changes master-class
 		mux.Get("/master-class/{id}", handlers.Repo.ShowMasterClass)
@@ -44,7 +44,51 @@ func routes() *chi.Mux {
 		//Delete master-class
 		mux.Get("/delete-master-class/{id}", handlers.Repo.DeleteMasterClass)
 
-		//Check-lists--------------------------------------------------------------------------------------------
+		//Program Show----------------------------------------------------------------------------------------------------------------------------------------------
+		mux.Get("/show-program", handlers.Repo.AllProgramShow)
+		//Changes
+		mux.Get("/show-program/{id}", handlers.Repo.ShowProgramShow)
+		mux.Post("/show-program/{id}", handlers.Repo.ShowPostProgramShow)
+		//Add new
+		mux.Get("/show-program-new", handlers.Repo.NewProgramShow)
+		mux.Post("/show-program-new", handlers.Repo.NewPostProgramShow)
+		//Delete
+		mux.Get("/delete-show-program/{id}", handlers.Repo.DeleteProgramShow)
+
+		//Animation----------------------------------------------------------------------------------------------------------------------------------------------
+		mux.Get("/animation", handlers.Repo.AllAnimation)
+		//Changes
+		mux.Get("/animation/{id}", handlers.Repo.ShowAnimation)
+		mux.Post("/animation/{id}", handlers.Repo.ShowPostAnimation)
+		//Add new
+		mux.Get("/animation-new", handlers.Repo.NewAnimation)
+		mux.Post("/animation-new", handlers.Repo.NewPostAnimation)
+		//Delete
+		mux.Get("/delete-animation/{id}", handlers.Repo.DeleteAnimation)
+
+		//Party----------------------------------------------------------------------------------------------------------------------------------------------
+		mux.Get("/party", handlers.Repo.AllParty)
+		//Changes
+		mux.Get("/party/{id}", handlers.Repo.ShowParty)
+		mux.Post("/party/{id}", handlers.Repo.ShowPostParty)
+		//Add new
+		mux.Get("/party-new", handlers.Repo.NewParty)
+		mux.Post("/party-new", handlers.Repo.NewPostParty)
+		//Delete
+		mux.Get("/delete-party/{id}", handlers.Repo.DeleteParty)
+
+		//Other----------------------------------------------------------------------------------------------------------------------------------------------
+		mux.Get("/other", handlers.Repo.AllOther)
+		//Changes
+		mux.Get("/other/{id}", handlers.Repo.ShowOther)
+		mux.Post("/other/{id}", handlers.Repo.ShowPostOther)
+		//Add new
+		mux.Get("/other-new", handlers.Repo.NewOther)
+		mux.Post("/other-new", handlers.Repo.NewPostOther)
+		//Delete
+		mux.Get("/delete-other/{id}", handlers.Repo.DeleteOther)
+
+		//Check-lists-----------------------------------------------------------------------------------------------------------------------------------
 		mux.Get("/check-lists/{src}", handlers.Repo.CheckListAll)
 		//Create new check-list
 		mux.Get("/check-list-new/{src}", handlers.Repo.NewCheckList)
@@ -56,7 +100,7 @@ func routes() *chi.Mux {
 		mux.Get("/delete-check-list/{src}/{id}", handlers.Repo.DeleteCheсkList)
 
 		//Leads calendar------------------------------------------------------------------------------------------
-		mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
+		// mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
 
 		//Animators
 		mux.Get("/animator", handlers.Repo.Doashboard)

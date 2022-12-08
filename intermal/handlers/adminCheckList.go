@@ -21,13 +21,13 @@ func (m *Repository) CheckListAll(w http.ResponseWriter, r *http.Request) {
 	var typeOfCheckList int
 	var title string
 	switch src {
-	case "show-program":
+	case "program-show":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
 		title = "Шоу программы"
 	case "class-master":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
 		title = "Мастер-классы"
-	case "animation":
+	case "animcheck":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
 		title = "Анимационные программы"
 	case "parties":
@@ -69,11 +69,11 @@ func (m *Repository) NewCheckList(w http.ResponseWriter, r *http.Request) {
 
 	var typeOfCheckList int
 	switch src {
-	case "show-program":
+	case "program-show":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
 	case "class-master":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
-	case "animation":
+	case "animcheck":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
 	case "parties":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_PARTIES_AND_QUESTS
@@ -115,10 +115,7 @@ func (m *Repository) NewPostCheckList(w http.ResponseWriter, r *http.Request) {
 	checkList.Description = r.Form.Get("description")
 	checkList.TypeOfList, _ = strconv.Atoi(r.Form.Get("id_type_of_list"))
 	NameOfPoints := r.Form["name_of_points[]"]
-
-	for _, val := range NameOfPoints {
-		checkList.NameOfPoints = append(checkList.NameOfPoints, val)
-	}
+	checkList.NameOfPoints = append(checkList.NameOfPoints, NameOfPoints...)
 
 	fmt.Println(checkList)
 
@@ -193,7 +190,7 @@ func (m *Repository) ShowCheckList(w http.ResponseWriter, r *http.Request) {
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
 	case "class-master":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
-	case "animation":
+	case "animcheck":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
 	case "parties":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_PARTIES_AND_QUESTS
@@ -252,9 +249,7 @@ func (m *Repository) ShowPostCheckList(w http.ResponseWriter, r *http.Request) {
 	checkList.Description = r.Form.Get("description")
 	NameOfPoints := r.Form["name_of_points[]"]
 	checkList.NameOfPoints = nil
-	for _, val := range NameOfPoints {
-		checkList.NameOfPoints = append(checkList.NameOfPoints, val)
-	}
+	checkList.NameOfPoints = append(checkList.NameOfPoints, NameOfPoints...)
 
 	fmt.Println(checkList)
 
