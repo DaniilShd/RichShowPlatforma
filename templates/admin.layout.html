@@ -6,7 +6,7 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Administration</title>
+        <title>Rich Show</title>
         <!-- plugins:css -->
         <link rel="stylesheet" href="/static/admin/vendors/ti-icons/css/themify-icons.css">
         <link rel="stylesheet" href="/static/admin/vendors/base/vendor.bundle.base.css">
@@ -14,7 +14,7 @@
         <!-- plugin css for this page -->
         <!-- End plugin css for this page -->
         <!-- inject:css -->
-        <link rel="stylesheet" href="/static/admin/css/style.css">
+        <link rel="stylesheet" href="/static/admin/css/style.css"> 
         <!-- endinject -->
         <link rel="shortcut icon" href="/static/admin/images/favicon.png"/>
 
@@ -59,22 +59,32 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-                      <i class="ti-palette menu-icon"></i>
+                    <a class="nav-link" href="/admin/master-class-all">
+                      <i class="ti-spray menu-icon"></i>
                       <span class="menu-title">Мастер-классы</span>
+                    </a>
+                  </li>
+
+
+                  <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#check_list" aria-expanded="false" aria-controls="check_list">
+                      <i class="ti-palette menu-icon"></i>
+                      <span class="menu-title">Чек-листы</span>
                       <i class="menu-arrow"></i>
                     </a>
-                    <div class="collapse" id="ui-basic">
+                    <div class="collapse" id="check_list">
                       <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"> <a class="nav-link" href="/admin/master-class-new">Новый мастер-класс</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="/admin/master-class-all">Все мастер-классы</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-list-master-class">Мастер-класс</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-list-show">Шоу программы</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/check-list-animation">Анимация</a></li>
                       </ul>
                     </div>
                   </li>
+
                   <li class="nav-item">
-                    <a class="nav-link" href="pages/forms/basic_elements.html">
+                    <a class="nav-link" href="/admin/leads-calendar">
                       <i class="ti-layout-list-post menu-icon"></i>
-                      <span class="menu-title">Form elements</span>
+                      <span class="menu-title">Календарь заказов</span>
                     </a>
                   </li>
 
@@ -108,7 +118,7 @@
                         <div class="col-md-12 grid-margin">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h4 class="font-weight-bold mb-0">{{block "page-title" .}} {{end}}</h4>
+                                            <h4 class="font-weight-bold mb-0">{{block "page-title" .}} {{end}}</h4>
                                 </div>
                                 <div>
 

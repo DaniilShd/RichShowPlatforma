@@ -52,7 +52,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 
 	m.App.Session.Put(r.Context(), "user_id", id)
 	m.App.Session.Put(r.Context(), "access_level", access_level)
-	m.App.Session.Put(r.Context(), "flash", "Успешный вход")
+	// m.App.Session.Put(r.Context(), "flash", "Успешный вход")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 

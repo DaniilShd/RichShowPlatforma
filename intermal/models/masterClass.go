@@ -1,4 +1,8 @@
 package models
 
-type masterClass struct {
+type MasterClass struct {
+	ID          int
+	Name        string
+	Description string
+	CheckList   CheckList
 }

@@ -8,13 +8,16 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/DaniilShd/RichShowPlatforma/intermal/config"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/models"
 	"github.com/justinas/nosurf"
 )
 
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"humanDate": HumanDate,
+}
 
 var pathToTemplate = "./templates"
 
@@ -23,6 +26,11 @@ var app *config.AppConfig
 // sets the config for the template
 func NewRenderer(a *config.AppConfig) {
 	app = a
+}
+
+// returns time in YYYY-MM-DD format (10 Nov 09 23:00 UTC)
+func HumanDate(t time.Time) string {
+	return t.Format(time.RFC822)
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {

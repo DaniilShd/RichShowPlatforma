@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/DaniilShd/RichShowPlatforma/intermal/helpers"
@@ -10,7 +9,7 @@ import (
 
 func WriteConsole(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Hit the page")
+		// fmt.Println("Hit the page")
 		next.ServeHTTP(w, r)
 	})
 }
@@ -48,6 +47,9 @@ func Auth(next http.Handler) http.Handler {
 			http.Redirect(w, r, "/manager", http.StatusSeeOther)
 		case 3:
 			http.Redirect(w, r, "/store", http.StatusSeeOther)
+		default:
+			session.Put(r.Context(), "error", "Некорректный уровень доступа")
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 		}
 		// next.ServeHTTP(w, r)
 	})

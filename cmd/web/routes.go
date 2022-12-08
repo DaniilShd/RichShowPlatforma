@@ -36,9 +36,22 @@ func routes() *chi.Mux {
 		//Master-class
 		mux.Get("/master-class-new", handlers.Repo.NewMasterClass)
 		mux.Get("/master-class-all", handlers.Repo.AllMasterClass)
+		//Changes master-class
+		mux.Get("/master-class/{src}/{id}", handlers.Repo.ShowMasterClass)
+		mux.Post("/master-class/{src}/{id}", handlers.Repo.ShowPostMasterClass)
+		//Add new master-class
+		mux.Get("/master-class-new", handlers.Repo.NewMasterClass)
+		mux.Post("/master-class-new", handlers.Repo.NewPostMasterClass)
+		//Delete master-class
+		mux.Get("/delete-master-class/{id}", handlers.Repo.DeleteMasterClass)
 
 		//Leads calendar
 		mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
+
+		//Check lists
+		mux.Get("/check-list-master-class", handlers.Repo.CheckListMasterClass)
+		mux.Get("/check-list-show", handlers.Repo.CheckListShow)
+		mux.Get("/admin/check-list-animation", handlers.Repo.CheckListAnimation)
 
 		//Animators
 		mux.Get("/animator-all", handlers.Repo.Doashboard)
