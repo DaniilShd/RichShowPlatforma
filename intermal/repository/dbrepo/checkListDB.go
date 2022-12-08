@@ -143,7 +143,7 @@ func (m *postgresDBRepo) GetCheckListByID(id int) (*models.CheckList, error) {
 	return &checklist, nil
 }
 
-func (m *postgresDBRepo) GetAllCheckListsOfType(id int) (*[]models.CheckList, error) {
+func (m *postgresDBRepo) GetAllCheckListsOfType(id_type_of_list int) (*[]models.CheckList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
@@ -166,7 +166,7 @@ func (m *postgresDBRepo) GetAllCheckListsOfType(id int) (*[]models.CheckList, er
 	from check_list_type
 	where id_type_of_list = $1
 	`
-	rows, err := m.DB.QueryContext(ctx, queryCheckLists, id)
+	rows, err := m.DB.QueryContext(ctx, queryCheckLists, id_type_of_list)
 	if err != nil {
 		return nil, err
 	}
@@ -252,6 +252,85 @@ func (m *postgresDBRepo) DeleteCheckListByID(id int) error {
 	if err != nil {
 		tx.Rollback()
 		return err
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) InsertCheckList(checkList *models.CheckList) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	query := `insert into check_lists (name_check_list, description, id_type_of_list)
+	VALUES ($1, $2, $3) 
+	RETURNING id_check_list
+	`
+
+	var id int
+	if err := m.DB.QueryRowContext(ctx, query,
+		checkList.Name,
+		checkList.Description,
+		checkList.TypeOfList).Scan(&id); err != nil {
+		return err
+	}
+
+	fmt.Println(id)
+
+	queryNames := `insert into check_list_points (id_check_list, name_point)
+	VALUES ($1, $2)
+	`
+
+	for _, value := range checkList.NameOfPoints {
+		_, err := m.DB.ExecContext(ctx, queryNames,
+			id,
+			value,
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) UpdateCheckList(checkList *models.CheckList) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	query := `update check_lists set name_check_list = $1, description = $2
+	where id_check_list = $3
+	`
+
+	var id int
+	if err := m.DB.QueryRowContext(ctx, query,
+		checkList.Name,
+		checkList.Description,
+		checkList.TypeOfList).Scan(&id); err != nil {
+		return err
+	}
+
+	fmt.Println(id)
+
+	queryNamesDelete := `delete
+	from check_list_points 
+	where id_check_list = $1
+	`
+
+	_, err := m.DB.ExecContext(ctx, queryNamesDelete, checkList.ID)
+	if err != nil {
+		return err
+	}
+
+	queryNamesInsert := `insert into check_list_points (id_check_list, name_point)
+	VALUES ($1, $2)
+	`
+
+	for _, value := range checkList.NameOfPoints {
+		_, err := m.DB.ExecContext(ctx, queryNamesInsert,
+			checkList.ID,
+			value,
+		)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

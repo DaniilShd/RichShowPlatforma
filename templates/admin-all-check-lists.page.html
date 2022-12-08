@@ -16,7 +16,7 @@
 <!-- <div class="row justify-content-end"> -->
 <div class="">
     <!-- <div class="col-3"> -->
-        <a href="/admin/ckeck-list-new/{{$src}}" class="btn btn-success fw-bold ">Добавить чек-лист</a>
+        <a href="/admin/check-list-new/{{$src}}" class="btn btn-success fw-bold ">Добавить чек-лист</a>
     <!-- </div> -->
     
 </div>
@@ -42,7 +42,7 @@
                     
                     <td>{{.ID}}</td>
                 
-                    <td><a href="/admin/check-lists/{{$src}}/all/{{.ID}}">
+                    <td><a href="/admin/check-lists/{{$src}}/{{.ID}}">
                         {{.Name}}
                     </a></td>
                     <!-- <td>{{.Description}}</td> -->

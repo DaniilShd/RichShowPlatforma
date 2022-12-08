@@ -18,12 +18,12 @@
 {{define "content"}}
 {{$res := index .Data "master-class"}}
 {{$checkList := index .Data "check-lists"}}
-{{$src := index .StringMap "src"}}
+
 
     <div class="col-md-12">
       
 
-        <form action="/admin/master-class/{{$src}}/{{$res.ID}}" method="post" class="" novalidate> 
+        <form action="/admin/master-class/{{$res.ID}}" method="post" class="" novalidate> 
 
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
             <input type="hidden" name="id_master_class" value="{{$res.ID}}">
@@ -58,7 +58,7 @@
               
    
             <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-           <a href="/admin/master-class-all" class="btn btn-warning">Отмена</a>
+           <a href="/admin/master-class" class="btn btn-warning">Отмена</a>
           </form>
     </div>
 {{end}}

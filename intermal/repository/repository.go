@@ -17,4 +17,6 @@ type DatabaseRepo interface {
 	GetCheckListByID(id int) (*models.CheckList, error)
 	GetAllCheckListsOfType(id int) (*[]models.CheckList, error)
 	DeleteCheckListByID(id int) error
+	InsertCheckList(checkList *models.CheckList) error
+	UpdateCheckList(checkList *models.CheckList) error
 }

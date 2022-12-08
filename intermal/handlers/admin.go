@@ -36,25 +36,35 @@ func (m *Repository) AllMasterClass(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) ShowMasterClass(w http.ResponseWriter, r *http.Request) {
 
 	exploded := strings.Split(r.RequestURI, "/")
-	id, err := strconv.Atoi(exploded[4])
+	id, err := strconv.Atoi(exploded[3])
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
 
-	src := exploded[3]
+	src := exploded[2]
 
-	stringMap := make(map[string]string)
-	stringMap["src"] = src
-	// get master-class from the DB
+	var typeOfCheckList int
+	switch src {
+	case "show-program":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
+
+	case "master-class":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
+
+	case "animation":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
+
+	}
 
 	res, err := m.DB.GetMasterClassByID(id)
 	if err != nil {
+		fmt.Println(err)
 		helpers.ServerError(w, err)
 		return
 	}
 
-	checkLists, err := m.DB.GetAllCheckList()
+	checkLists, err := m.DB.GetAllCheckListsOfType(typeOfCheckList)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
@@ -65,9 +75,8 @@ func (m *Repository) ShowMasterClass(w http.ResponseWriter, r *http.Request) {
 	data["check-lists"] = checkLists
 
 	render.Template(w, r, "admin-master-class-show.page.html", &models.TemplateData{
-		StringMap: stringMap,
-		Data:      data,
-		Form:      forms.New(nil),
+		Data: data,
+		Form: forms.New(nil),
 	})
 }
 
@@ -81,16 +90,11 @@ func (m *Repository) ShowPostMasterClass(w http.ResponseWriter, r *http.Request)
 	}
 
 	exploded := strings.Split(r.RequestURI, "/")
-	id, err := strconv.Atoi(exploded[4])
+	id, err := strconv.Atoi(exploded[3])
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
-
-	src := exploded[3]
-
-	stringMap := make(map[string]string)
-	stringMap["src"] = src
 
 	masterClass, err := m.DB.GetMasterClassByID(id)
 
@@ -106,7 +110,7 @@ func (m *Repository) ShowPostMasterClass(w http.ResponseWriter, r *http.Request)
 
 	m.App.Session.Put(r.Context(), "flash", "Changes saved")
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/master-class-%s", src), http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/master-class", http.StatusSeeOther)
 }
 
 // Show page of add new master-class
@@ -174,7 +178,7 @@ func (m *Repository) NewPostMasterClass(w http.ResponseWriter, r *http.Request) 
 
 	m.App.Session.Put(r.Context(), "flash", "Master-class saved")
 
-	http.Redirect(w, r, "/admin/master-class-all", http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/master-class", http.StatusSeeOther)
 }
 
 //Delete master-class DeleteMasterClass
@@ -193,7 +197,7 @@ func (m *Repository) DeleteMasterClass(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin/master-class-all", http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/master-class", http.StatusSeeOther)
 }
 
 //Leads ----------------------------------------------------------------------------------------------------------------
@@ -222,7 +226,7 @@ func (m *Repository) CheckListAll(w http.ResponseWriter, r *http.Request) {
 	case "show-program":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
 		title = "Шоу программы"
-	case "master-class":
+	case "class-master":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
 		title = "Мастер-классы"
 	case "animation":
@@ -255,20 +259,92 @@ func (m *Repository) NewCheckList(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["source"] = src
 
+	fmt.Println(src)
+
 	checkList := models.CheckList{}
+
+	var typeOfCheckList int
+	switch src {
+	case "show-program":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
+
+	case "master-class":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
+
+	case "animation":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
+
+	}
+	fmt.Println(typeOfCheckList)
 
 	data := make(map[string]interface{})
 	data["check-list"] = checkList
-	s
+	data["type-of-list"] = typeOfCheckList
 
 	render.Template(w, r, "admin-check-list-new.page.html", &models.TemplateData{
-		Data: data,
-		Form: forms.New(nil),
+		Data:      data,
+		Form:      forms.New(nil),
+		StringMap: stringMap,
 	})
 }
 
 func (m *Repository) NewPostCheckList(w http.ResponseWriter, r *http.Request) {
 
+	//Достаем значение из строки URL
+	exploded := strings.Split(r.RequestURI, "/")
+	src := exploded[3]
+	stringMap := make(map[string]string)
+	stringMap["source"] = src
+
+	fmt.Println(src)
+
+	//Парсим форму
+	err := r.ParseForm()
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "cant't parse form!")
+		http.Redirect(w, r, "admin/dashboard", http.StatusTemporaryRedirect)
+		return
+	}
+
+	var checkList models.CheckList
+	checkList.Name = r.Form.Get("name_check_list")
+	checkList.Description = r.Form.Get("description")
+	checkList.TypeOfList = r.Form.Get("id_type_of_list")
+	NameOfPoints := r.Form["name_of_points[]"]
+
+	for _, val := range NameOfPoints {
+		checkList.NameOfPoints = append(checkList.NameOfPoints, val)
+	}
+
+	fmt.Println(checkList)
+
+	form := forms.New(r.PostForm)
+	form.Required("name_check_list", "description")
+
+	if !form.Valid() {
+
+		data := make(map[string]interface{})
+		data["check-list"] = checkList
+		data["type-of-list"] = checkList.TypeOfList
+
+		render.Template(w, r, "admin-check-list-new.page.html", &models.TemplateData{
+			Form:      form,
+			Data:      data,
+			StringMap: stringMap,
+		})
+		return
+	}
+
+	err = m.DB.InsertCheckList(&checkList)
+	if err != nil {
+		fmt.Println(err)
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Check-list saved")
+
+	http.Redirect(w, r, fmt.Sprintf("/admin/check-lists/%s", src), http.StatusSeeOther)
 }
 
 //Delete master-class Chek-List
@@ -288,9 +364,119 @@ func (m *Repository) DeleteCheсkList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 		m.App.Session.Put(r.Context(), "error", "Чек лист используется")
-		http.Redirect(w, r, fmt.Sprintf("/admin/check-list/%s/all", src), http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/admin/check-list/%s", src), http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/check-lists/%s/all", src), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/admin/check-lists/%s", src), http.StatusSeeOther)
+}
+
+func (m *Repository) ShowCheckList(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[4])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	src := exploded[3]
+	stringMap := make(map[string]string)
+	stringMap["source"] = src
+
+	var typeOfCheckList int
+	switch src {
+	case "show-program":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
+
+	case "class-master":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
+
+	case "animation":
+		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
+
+	}
+
+	res, err := m.DB.GetCheckListByID(id)
+	if err != nil {
+		fmt.Println(err)
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["check-list"] = res
+	data["type-of-list"] = typeOfCheckList
+
+	render.Template(w, r, "admin-check-list-show.page.html", &models.TemplateData{
+		Data:      data,
+		Form:      forms.New(nil),
+		StringMap: stringMap,
+	})
+}
+
+func (m *Repository) ShowPostCheckList(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("23432444444444444444444444444")
+	//Достаем значение из строки URL
+	exploded := strings.Split(r.RequestURI, "/")
+	src := exploded[3]
+	stringMap := make(map[string]string)
+	stringMap["source"] = src
+
+	id, err := strconv.Atoi(exploded[4])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	//Парсим форму
+	err = r.ParseForm()
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "cant't parse form!")
+		http.Redirect(w, r, "admin/dashboard", http.StatusTemporaryRedirect)
+		return
+	}
+
+	checkList, err := m.DB.GetCheckListByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	fmt.Println(checkList)
+	checkList.Name = r.Form.Get("name_check_list")
+	checkList.Description = r.Form.Get("description")
+	NameOfPoints := r.Form["name_of_points[]"]
+
+	for _, val := range NameOfPoints {
+		checkList.NameOfPoints = append(checkList.NameOfPoints, val)
+	}
+
+	fmt.Println(checkList)
+
+	form := forms.New(r.PostForm)
+	form.Required("name_check_list", "description")
+
+	if !form.Valid() {
+
+		data := make(map[string]interface{})
+		data["check-list"] = checkList
+
+		render.Template(w, r, "admin-check-list-show.page.html", &models.TemplateData{
+			Form:      form,
+			Data:      data,
+			StringMap: stringMap,
+		})
+		return
+	}
+
+	err = m.DB.UpdateCheckList(checkList)
+	if err != nil {
+		fmt.Println(err)
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Check-list saved")
+
+	http.Redirect(w, r, fmt.Sprintf("/admin/check-lists/%s", src), http.StatusSeeOther)
 }

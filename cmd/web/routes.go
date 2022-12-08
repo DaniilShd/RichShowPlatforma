@@ -34,10 +34,10 @@ func routes() *chi.Mux {
 		mux.Get("/dashboard", handlers.Repo.Doashboard)
 
 		//Master-class---------------------------------------------------------------------------------------------
-		mux.Get("/master-class-all", handlers.Repo.AllMasterClass)
+		mux.Get("/master-class", handlers.Repo.AllMasterClass)
 		//Changes master-class
-		mux.Get("/master-class/{src}/{id}", handlers.Repo.ShowMasterClass)
-		mux.Post("/master-class/{src}/{id}", handlers.Repo.ShowPostMasterClass)
+		mux.Get("/master-class/{id}", handlers.Repo.ShowMasterClass)
+		mux.Post("/master-class/{id}", handlers.Repo.ShowPostMasterClass)
 		//Add new master-class
 		mux.Get("/master-class-new", handlers.Repo.NewMasterClass)
 		mux.Post("/master-class-new", handlers.Repo.NewPostMasterClass)
@@ -45,10 +45,13 @@ func routes() *chi.Mux {
 		mux.Get("/delete-master-class/{id}", handlers.Repo.DeleteMasterClass)
 
 		//Check-lists--------------------------------------------------------------------------------------------
-		mux.Get("/check-lists/{src}/all", handlers.Repo.CheckListAll)
+		mux.Get("/check-lists/{src}", handlers.Repo.CheckListAll)
 		//Create new check-list
-		mux.Get("/check-lists-new/{src}", handlers.Repo.NewCheckList)
-		mux.Post("/check-lists-new/{src}", handlers.Repo.NewPostCheckList)
+		mux.Get("/check-list-new/{src}", handlers.Repo.NewCheckList)
+		mux.Post("/check-list-new/{src}", handlers.Repo.NewPostCheckList)
+		//Changes master-class
+		mux.Get("/check-lists/{src}/{id}", handlers.Repo.ShowCheckList)
+		mux.Post("/check-lists/{src}/{id}", handlers.Repo.ShowPostCheckList)
 		//delete any check-list
 		mux.Get("/delete-check-list/{src}/{id}", handlers.Repo.DeleteCheсkList)
 
@@ -56,7 +59,7 @@ func routes() *chi.Mux {
 		mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
 
 		//Animators
-		mux.Get("/animator-all", handlers.Repo.Doashboard)
+		mux.Get("/animator", handlers.Repo.Doashboard)
 		mux.Get("/animator-new", handlers.Repo.Doashboard)
 		mux.Get("/send-mail-animator", handlers.Repo.Doashboard)
 

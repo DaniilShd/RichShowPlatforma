@@ -41,7 +41,7 @@
                 {{with .Form.Errors.Get "description"}}
                 <label for="" class="text-danger">{{.}}</label>
                 {{end}}
-                <textarea required type="text" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}"  rows="9" id="description" name="description">{{$res.Description}}</textarea>
+                <textarea required type="text" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}"  rows="5" id="description" name="description">{{$res.Description}}</textarea>
               </div>
               <label for="select_check" class="form-label">Выберете чек-лист из списка</label>
               {{with .Form.Errors.Get "id_check_list"}}
@@ -60,7 +60,7 @@
               
    
             <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-           <a href="/admin/master-class-all" class="btn btn-warning">Отмена</a>
+           <a href="/admin/master-class" class="btn btn-warning">Отмена</a>
           </form>
     </div>
 {{end}}
