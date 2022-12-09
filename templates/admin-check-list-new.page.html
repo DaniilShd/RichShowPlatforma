@@ -18,7 +18,9 @@
 
 {{$res := index .Data "check-list"}}
 
+{{$storeItems := index .Data "store-items"}}
 {{$src := index .StringMap "source"}}
+
 
     <div class="col-md-12">
       
@@ -44,18 +46,75 @@
               </div>
               
 
-              <a type="" onclick="add_field()" class="btn btn-info">Добавить пункт</a>
-              <a type="" onclick="delete_field()" class="btn btn-danger">Удалить пункт</a>
+              <a type="button" onclick="add_field()" class="btn btn-info">Добавить пункт</a>
+              <a type="button" onclick="delete_field()" class="btn btn-danger">Удалить пункт</a>
               <div class="mb-3" >
-                <label for="name_master_class" class="form-label">Пункты чек-листа (вписывать отдельно в каждое поле)</label>
-                {{with .Form.Errors.Get "name_master_class"}}
+                <label for="point" class="form-label">Пункты чек-листа (вписывать отдельно в каждое поле)</label>
+                {{with .Form.Errors.Get "point"}}
                 <label for="" class="text-danger">{{.}}</label>
                 {{end}}
                 <div id="many_input">
+  
                     {{range $res.NameOfPoints}}
-                    <input type="text" value="{{.}}" class="form-control field" id="name_of_points" name="name_of_points[]" required>
+                    <div class="field">
+                      <input type="text" value="{{.}}" class="form-control" id="name_of_points" name="name_of_points[]" required>
+                    </div>
                   {{end}}
+     
                 </div>
+            </div>
+
+            <a type="button" onclick="add_item()" class="btn btn-info">Добавить материал</a>
+              <a type="button" onclick="delete_item()" class="btn btn-danger">Удалить материал</a>
+              <div class="mb-3" id="item-main">
+              <div class="row">
+                <div class="col-6">
+                  <label for="point" class="form-label">Наименование материала</label>
+                </div>
+                <div class="col-6">
+                  <label for="point" class="form-label">Количетсво <strong>(на одного человека)</strong></label> 
+                </div>
+              </div>
+                  
+                  <div id="item_many" class="item-store" style="display: none;">
+                    <div class="row">
+                      <div class="col-6">
+                        <select name="check_list_store[]" class="form-select" aria-label="Default item">
+                          <option selected></option>
+                          {{range $storeItems}}
+                          <option value="{{.ID}}">{{.Name}}  ({{.Dimension}})</option>
+                          {{end}}
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input type="text" value="" class="form-control" id="amount_item_once" name="amount_item_once[]" required>
+                      </div>
+                    </div>
+                  
+                  </div>
+                  {{with .Form.Errors.Get "amount_item_once"}}
+                        <label for="" class="text-danger">{{.}}</label>
+                        {{end}}
+{{range $res.Items}}
+                  <div id="item_many" class="item-store">
+                    <div class="row">
+                      <div class="col-6">
+                        <select name="check_list_store[]" class="form-select" aria-label="Default item">
+                          <option selected value="{{.ID}}"
+                          >{{.Name}}  ({{.Dimension}})</option>
+                          {{range $storeItems}}
+                          <option value="{{.ID}}">{{.Name}}  ({{.Dimension}})</option>
+                          {{end}}
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input type="text" value="{{.AmountItemOnce}}" class="form-control" id="amount_item_once" name="amount_item_once[]" required>
+                      </div>
+                    </div>
+                  
+                  </div>
+                  {{end}}
+                
             </div>
         
               

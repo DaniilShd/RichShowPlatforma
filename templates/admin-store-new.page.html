@@ -1,0 +1,84 @@
+{{template "admin" .}}
+
+
+
+{{define "page-title"}}
+<h4>Новая позиция</h4>
+{{end}}
+
+{{define "css"}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    
+    <link rel="canonical" href="static/css/style.css">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
+{{end}}
+
+{{define "content"}}
+{{$storeItem := index .Data "store"}}
+
+    <div class="col-md-12">
+      
+
+        <form action="/admin/store-new" method="post" class="" novalidate> 
+
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            
+  
+            
+            <div class="mb-3">
+              <label for="name_item" class="form-label">Название материала</label>
+              {{with .Form.Errors.Get "name_item"}}
+              <label for="" class="text-danger">{{.}}</label>
+              {{end}}
+              <input type="text" value="{{$storeItem.Name}}" class="form-control {{with .Form.Errors.Get "name_item"}} is-invalid {{end}}" id="name_item" name="name_item" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Количество материала</label>
+              {{with .Form.Errors.Get "current_amount"}}
+              <label for="" class="text-danger">{{.}}</label>
+              {{end}}
+              <input required type="text" value="{{$storeItem.CurrentAmount}}" class="form-control {{with .Form.Errors.Get "current_amount"}} is-invalid {{end}}"  rows="5" id="current_amount" name="current_amount">
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Размерность</label>
+              {{with .Form.Errors.Get "dimension"}}
+              <label for="" class="text-danger">{{.}}</label>
+              {{end}}
+              <input required type="text" value="{{$storeItem.Dimension}}" class="form-control {{with .Form.Errors.Get "dimension"}} is-invalid {{end}}"  rows="5" id="dimension" name="dimension">
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Минимальное количество, которое должно быть на складе <strong>в запасе</strong></label>
+              {{with .Form.Errors.Get "min_amount"}}
+              <label for="" class="text-danger">{{.}}</label>
+              {{end}}
+              <input required type="text" value="{{$storeItem.MinAmount}}" class="form-control {{with .Form.Errors.Get "min_amount"}} is-invalid {{end}}"  rows="5" id="min_amount" name="min_amount">
+            </div>
+  
+            <div class="mb-3">
+                <label for="description" class="form-label">Комментарии</label>
+                {{with .Form.Errors.Get "description"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <textarea required type="text" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}"  rows="5" id="description" name="description">{{$storeItem.Description}}</textarea>
+              </div>
+              
+  
+              
+   
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+           <a href="/admin/store" class="btn btn-warning">Отмена</a>
+          </form>
+    </div>
+{{end}}
+
+{{define "js"}}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{end}}

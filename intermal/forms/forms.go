@@ -61,3 +61,9 @@ func (f *Form) IsEmail(field string) {
 		f.Errors.Add(field, "This no email")
 	}
 }
+
+func (f *Form) IsFloat(field string) {
+	if govalidator.IsFloat(f.Get(field)) || govalidator.IsInt(f.Get(field)) {
+		f.Errors.Add(field, "This no number")
+	}
+}

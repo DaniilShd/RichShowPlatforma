@@ -114,6 +114,11 @@ func (m *postgresDBRepo) GetCheckListByID(id int) (*models.CheckList, error) {
 
 	checklist.NameOfPoints = namePoints
 
+	checklist.Items, err = m.getCheckListItemsByCheckListID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &checklist, nil
 }
 
@@ -211,6 +216,8 @@ func (m *postgresDBRepo) DeleteCheckListByID(id int) error {
 		return err
 	}
 
+	m.deleteCheckListItems(ctx, id)
+
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()
@@ -251,6 +258,13 @@ func (m *postgresDBRepo) InsertCheckList(checkList *models.CheckList) error {
 			return err
 		}
 	}
+
+	//Добавляю в БД расходники для программы
+	err := m.insertCheckListItems(ctx, checkList.Items, id)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -293,5 +307,116 @@ func (m *postgresDBRepo) UpdateCheckList(checkList *models.CheckList) error {
 			return err
 		}
 	}
+
+	m.updateCheckListItems(ctx, checkList.Items, checkList.ID)
 	return nil
+}
+
+//CheckListItems---------------------------------------------------------------------------------------------------------------------------------
+
+func (m *postgresDBRepo) insertCheckListItems(ctx context.Context, checkListItems []models.Item, idCheckList int) error {
+
+	query := `insert into check_list_store (id_check_list, id_item, amount_item_once)
+	VALUES ($1, $2, $3) 
+	RETURNING id_check_list
+	`
+
+	for _, checkListItem := range checkListItems {
+		_, err := m.DB.ExecContext(ctx, query,
+			idCheckList,
+			checkListItem.ID,
+			checkListItem.AmountItemOnce)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *postgresDBRepo) deleteCheckListItems(ctx context.Context, idCheckList int) error {
+
+	deleteCheckListItems := `
+	delete 
+	from check_list_store
+	where id_check_list = $1
+	`
+
+	tx, err := m.DB.Begin()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, deleteCheckListItems, idCheckList)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return nil
+
+}
+
+func (m *postgresDBRepo) updateCheckListItems(ctx context.Context, checkListItems []models.Item, idCheckList int) error {
+
+	queryItemsDelete := `delete
+	from check_list_store 
+	where id_check_list = $1
+	`
+
+	_, err := m.DB.ExecContext(ctx, queryItemsDelete, idCheckList)
+	if err != nil {
+		return err
+	}
+
+	queryItemsInsert := `insert into check_list_store 
+	(id_check_list, id_item, amount_item_once)
+	VALUES ($1, $2, $3)
+	`
+
+	for _, value := range checkListItems {
+		_, err := m.DB.ExecContext(ctx, queryItemsInsert,
+			idCheckList,
+			value.Name,
+			value.AmountItemOnce,
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) getCheckListItemsByCheckListID(ctx context.Context, id int) ([]models.Item, error) {
+	var items []models.Item
+
+	queryItems := `
+	select c.id_item, c.amount_item_once, s.name_item, s.dimension
+	from check_list_store c 
+	left join 
+	store s on (c.id_item = s.id_item)
+	where id_check_list = $1
+	`
+
+	rows, err := m.DB.QueryContext(ctx, queryItems, id)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var item models.Item
+		err := rows.Scan(&item.ID, &item.AmountItemOnce, &item.Name, &item.Dimension)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	return items, nil
 }
