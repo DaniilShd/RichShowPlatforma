@@ -50,7 +50,7 @@ func (m *Repository) ShowAnimation(w http.ResponseWriter, r *http.Request) {
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_SHOW
 	case "master-class":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_MASTER_CLASS
-	case "animations":
+	case "animation":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
 	case "party":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_PARTIES_AND_QUESTS

@@ -33,7 +33,7 @@ func (m *Repository) CheckListAll(w http.ResponseWriter, r *http.Request) {
 	case "parties":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_PARTIES_AND_QUESTS
 		title = "Вечеринки и квесты"
-	case "other":
+	case "oths":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_OTHER
 		title = "Другое"
 	}
@@ -77,7 +77,7 @@ func (m *Repository) NewCheckList(w http.ResponseWriter, r *http.Request) {
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
 	case "parties":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_PARTIES_AND_QUESTS
-	case "other":
+	case "oths":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_OTHER
 	}
 
@@ -194,7 +194,7 @@ func (m *Repository) ShowCheckList(w http.ResponseWriter, r *http.Request) {
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_ANIMATION
 	case "parties":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_PARTIES_AND_QUESTS
-	case "other":
+	case "oths":
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_OTHER
 	}
 
