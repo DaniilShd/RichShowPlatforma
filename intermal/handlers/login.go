@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/DaniilShd/RichShowPlatforma/intermal/forms"
@@ -22,8 +21,6 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	var password string
 	login = r.Form.Get("login")
 	password = r.Form.Get("password")
-
-	fmt.Println(login, password)
 
 	stringMap := make(map[string]string)
 	stringMap["login"] = login

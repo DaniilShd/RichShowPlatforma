@@ -19,4 +19,7 @@ type DatabaseRepo interface {
 	DeleteStoreItemByID(id int) error
 	InsertStoreItem(storeItem *models.StoreItem) error
 	UpdateStoreItem(storeItem *models.StoreItem) error
+
+	//Manager
+	InsertLead(lead *models.Lead) error
 }

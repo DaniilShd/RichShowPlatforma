@@ -1,4 +1,4 @@
-{{template "admin" .}}
+{{template "base" .}}
 
 
 
@@ -20,7 +20,7 @@
     <div class="col-md-12">
       
 
-        <form action="/admin/store/{{$storeItem.ID}}" method="post" class="" novalidate> 
+        <form action="/store/item/{{$storeItem.ID}}" method="post" class="" novalidate> 
 
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
@@ -68,7 +68,7 @@
               
    
             <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-           <a href="/admin/store" class="btn btn-warning">Отмена</a>
+           <a href="/store" class="btn btn-warning">Отмена</a>
           </form>
     </div>
 {{end}}

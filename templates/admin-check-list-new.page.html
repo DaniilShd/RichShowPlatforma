@@ -36,6 +36,14 @@
               {{end}}
               <input type="text" value="{{$res.Name}}" class="form-control {{with .Form.Errors.Get "name_check_list"}} is-invalid {{end}}" id="name_check_list" name="name_check_list" required>
             </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Продолжительность (в минутах)</label>
+              {{with .Form.Errors.Get "duration"}}
+              <label for="" class="text-danger">{{.}}</label>
+              {{end}}
+              <input required type="text" value="{{$res.Duration}}" class="form-control {{with .Form.Errors.Get "duration"}} is-invalid {{end}}"  rows="5" id="duration" name="duration">
+            </div>
   
             <div class="mb-3">
                 <label for="description" class="form-label">Описание</label>
@@ -68,17 +76,17 @@
               <a type="button" onclick="delete_item()" class="btn btn-danger">Удалить материал</a>
               <div class="mb-3" id="item-main">
               <div class="row">
-                <div class="col-6">
+                <div class="col-4">
                   <label for="point" class="form-label">Наименование материала</label>
                 </div>
-                <div class="col-6">
+                <div class="col-4">
                   <label for="point" class="form-label">Количетсво <strong>(на одного человека)</strong></label> 
                 </div>
               </div>
                   
                   <div id="item_many" class="item-store" style="display: none;">
                     <div class="row">
-                      <div class="col-6">
+                      <div class="col-4">
                         <select name="check_list_store[]" class="form-select" aria-label="Default item">
                           <option selected></option>
                           {{range $storeItems}}
@@ -86,7 +94,7 @@
                           {{end}}
                         </select>
                       </div>
-                      <div class="col-6">
+                      <div class="col-4">
                         <input type="text" value="" class="form-control" id="amount_item_once" name="amount_item_once[]" required>
                       </div>
                     </div>
@@ -98,7 +106,7 @@
 {{range $res.Items}}
                   <div id="item_many" class="item-store">
                     <div class="row">
-                      <div class="col-6">
+                      <div class="col-4">
                         <select name="check_list_store[]" class="form-select" aria-label="Default item">
                           <option selected value="{{.ID}}"
                           >{{.Name}}  ({{.Dimension}})</option>
@@ -107,7 +115,7 @@
                           {{end}}
                         </select>
                       </div>
-                      <div class="col-6">
+                      <div class="col-4">
                         <input type="text" value="{{.AmountItemOnce}}" class="form-control" id="amount_item_once" name="amount_item_once[]" required>
                       </div>
                     </div>

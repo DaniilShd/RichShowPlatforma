@@ -30,10 +30,12 @@
                 <tr>
                     <th>ID</th>
                     <th>Наименование</th>
+                    
                     <th>Количество</th>
+                    <th>Минимальное значение</th>
                     <th>Размерность</th>
                     <th>Комментарии</th>
-                    <th>Минимальное значение</th>
+                    
               
                     <th></th>
                 </tr>
@@ -47,10 +49,12 @@
                     <td><a href="/admin/store/{{.ID}}">
                         {{.Name}}
                     </a></td>
+                    
                     <td>{{.CurrentAmount}}</td>
+                    <td>{{.MinAmount}}</td>
                     <td>{{.Dimension}}</td>
                     <td>{{.Description}}</td>
-                    <td>{{.MinAmount}}</td>
+                    
     
                     <td>
                         <a class="" onclick="deleteItem({{.ID}})" aria-expanded="false" aria-controls="">

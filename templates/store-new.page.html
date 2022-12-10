@@ -1,9 +1,9 @@
-{{template "admin" .}}
+{{template "base" .}}
 
 
 
 {{define "page-title"}}
-<h4>Изменить материал</h4>
+<h4>Новая позиция</h4>
 {{end}}
 
 {{define "css"}}
@@ -20,10 +20,12 @@
     <div class="col-md-12">
       
 
-        <form action="/admin/store/{{$storeItem.ID}}" method="post" class="" novalidate> 
+        <form action="/store/new" method="post" class="" novalidate> 
 
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-
+            
+  
+            
             <div class="mb-3">
               <label for="name_item" class="form-label">Название материала</label>
               {{with .Form.Errors.Get "name_item"}}
@@ -68,7 +70,7 @@
               
    
             <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-           <a href="/admin/store" class="btn btn-warning">Отмена</a>
+           <a href="/store" class="btn btn-warning">Отмена</a>
           </form>
     </div>
 {{end}}

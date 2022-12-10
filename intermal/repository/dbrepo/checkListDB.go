@@ -17,7 +17,7 @@ func (m *postgresDBRepo) GetAllCheckList() (*[]models.CheckList, error) {
 	var checklists []models.CheckList
 
 	queryCheckLists := `
-	select id_check_list, name_check_list, description, id_type_of_list
+	select id_check_list, name_check_list, description, id_type_of_list, duration
 	from check_lists
 	`
 
@@ -33,7 +33,7 @@ func (m *postgresDBRepo) GetAllCheckList() (*[]models.CheckList, error) {
 
 	for rows.Next() {
 		var checklist models.CheckList
-		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList)
+		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList, &checklist.Duration)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +74,7 @@ func (m *postgresDBRepo) GetCheckListByID(id int) (*models.CheckList, error) {
 	var checklist models.CheckList
 
 	queryCheckList := `
-	select id_check_list, name_check_list, description, id_type_of_list
+	select id_check_list, name_check_list, description, id_type_of_list, duration
 	from check_lists
 	where id_check_list = $1
 	`
@@ -90,7 +90,7 @@ func (m *postgresDBRepo) GetCheckListByID(id int) (*models.CheckList, error) {
 		return nil, err
 	}
 
-	err := row.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList)
+	err := row.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList, &checklist.Duration)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (m *postgresDBRepo) GetAllCheckListsOfType(id_type_of_list int) (*[]models.
 	var checklists []models.CheckList
 
 	queryCheckLists := `
-	select id_check_list, name_check_list, description, id_type_of_list
+	select id_check_list, name_check_list, description, id_type_of_list, duration
 	from check_lists
 	where id_type_of_list = $1
 	`
@@ -148,7 +148,7 @@ func (m *postgresDBRepo) GetAllCheckListsOfType(id_type_of_list int) (*[]models.
 	for rows.Next() {
 		var checklist models.CheckList
 
-		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList)
+		err := rows.Scan(&checklist.ID, &checklist.Name, &checklist.Description, &checklist.TypeOfList, &checklist.Duration)
 		if err != nil {
 			return nil, err
 		}
@@ -230,8 +230,8 @@ func (m *postgresDBRepo) InsertCheckList(checkList *models.CheckList) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	query := `insert into check_lists (name_check_list, description, id_type_of_list)
-	VALUES ($1, $2, $3) 
+	query := `insert into check_lists (name_check_list, description, id_type_of_list, duration)
+	VALUES ($1, $2, $3, $4) 
 	RETURNING id_check_list
 	`
 
@@ -239,11 +239,12 @@ func (m *postgresDBRepo) InsertCheckList(checkList *models.CheckList) error {
 	if err := m.DB.QueryRowContext(ctx, query,
 		checkList.Name,
 		checkList.Description,
-		checkList.TypeOfList).Scan(&id); err != nil {
+		checkList.TypeOfList,
+		checkList.Duration).Scan(&id); err != nil {
 		return err
 	}
 
-	fmt.Println(id)
+	// fmt.Println(id)
 
 	queryNames := `insert into check_list_points (id_check_list, name_point)
 	VALUES ($1, $2)
@@ -272,13 +273,14 @@ func (m *postgresDBRepo) UpdateCheckList(checkList *models.CheckList) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	query := `update check_lists set name_check_list = $1, description = $2
-	where id_check_list = $3
+	query := `update check_lists set name_check_list = $1, description = $2, duration = $3
+	where id_check_list = $4
 	`
 
 	_, err := m.DB.ExecContext(ctx, query,
 		checkList.Name,
 		checkList.Description,
+		checkList.Duration,
 		checkList.ID)
 	if err != nil {
 		return err
@@ -307,7 +309,6 @@ func (m *postgresDBRepo) UpdateCheckList(checkList *models.CheckList) error {
 			return err
 		}
 	}
-
 	m.updateCheckListItems(ctx, checkList.Items, checkList.ID)
 	return nil
 }
@@ -380,11 +381,11 @@ func (m *postgresDBRepo) updateCheckListItems(ctx context.Context, checkListItem
 	VALUES ($1, $2, $3)
 	`
 
-	for _, value := range checkListItems {
+	for _, item := range checkListItems {
 		_, err := m.DB.ExecContext(ctx, queryItemsInsert,
 			idCheckList,
-			value.Name,
-			value.AmountItemOnce,
+			item.ID,
+			item.AmountItemOnce,
 		)
 		if err != nil {
 			return err

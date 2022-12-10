@@ -14,4 +14,5 @@ type CheckList struct {
 	TypeOfList   int
 	NameOfPoints []string
 	Items        []Item
+	Duration     int
 }

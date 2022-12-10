@@ -18,6 +18,13 @@
         <link rel="stylesheet" href="/static/admin/css/style.css"> 
         <!-- endinject -->
         <link rel="shortcut icon" href="/static/favicon/favicon-16x16.png"/>
+        <style>
+
+        .notie-container {
+          z-index: 50000;
+        }
+
+        </style>
 
         {{block "css" . }}
 
@@ -59,13 +66,31 @@
                       <span class="menu-title">Доска</span>
                     </a>
                   </li>
+
+                  <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#store" aria-expanded="false" aria-controls="store">
+                      <i class="ti-package menu-icon"></i>
+                      <span class="menu-title">Реквизитор</span>
+                      <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="store">
+                      <ul class="nav flex-column sub-menu">
+                        
+                        <li class="nav-item"> <a class="nav-link" href="/admin/store">Склад</a></li>
+                        
+                      </ul>
+                    </div>
+                  </li>
+
+
+<!-- 
                   <li class="nav-item">
                     <a class="nav-link" href="/admin/store">
                       <i class="ti-package menu-icon"></i>
                       <span class="menu-title">Склад</span>
                     </a>
                   </li>
-                  
+                   -->
 
 
                   <li class="nav-item">

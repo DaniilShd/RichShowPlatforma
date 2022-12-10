@@ -63,8 +63,6 @@ func (m *Repository) NewCheckList(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["source"] = src
 
-	fmt.Println(src)
-
 	checkList := models.CheckList{}
 
 	var typeOfCheckList int
@@ -123,6 +121,7 @@ func (m *Repository) NewPostCheckList(w http.ResponseWriter, r *http.Request) {
 
 	//Сохраняем данные в сущности checkList
 	var checkList models.CheckList
+	checkList.Duration, _ = strconv.Atoi(r.Form.Get("duration"))
 	checkList.Name = r.Form.Get("name_check_list")
 	checkList.Description = r.Form.Get("description")
 	checkList.TypeOfList, _ = strconv.Atoi(r.Form.Get("id_type_of_list"))
@@ -182,7 +181,7 @@ func (m *Repository) NewPostCheckList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m.App.Session.Put(r.Context(), "flash", "Check-list saved")
+	m.App.Session.Put(r.Context(), "flash", "Чек-лист успешно сохранен")
 
 	http.Redirect(w, r, fmt.Sprintf("/admin/check-lists/%s", src), http.StatusSeeOther)
 }
@@ -237,7 +236,14 @@ func (m *Repository) ShowCheckList(w http.ResponseWriter, r *http.Request) {
 		typeOfCheckList = CHECK_LISTS_TYPE_OF_OTHER
 	}
 
-	res, err := m.DB.GetCheckListByID(id)
+	var storeItems []models.StoreItem
+	storeItems, err = m.DB.GetAllStoreItem()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	checkList, err := m.DB.GetCheckListByID(id)
 	if err != nil {
 		fmt.Println(err)
 		helpers.ServerError(w, err)
@@ -245,8 +251,9 @@ func (m *Repository) ShowCheckList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := make(map[string]interface{})
-	data["check-list"] = res
+	data["check-list"] = checkList
 	data["type-of-list"] = typeOfCheckList
+	data["store-items"] = storeItems
 
 	render.Template(w, r, "admin-check-list-show.page.html", &models.TemplateData{
 		Data:      data,
@@ -257,7 +264,6 @@ func (m *Repository) ShowCheckList(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) ShowPostCheckList(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("23432444444444444444444444444")
 	//Достаем значение из строки URL
 	exploded := strings.Split(r.RequestURI, "/")
 	src := exploded[3]
@@ -283,22 +289,58 @@ func (m *Repository) ShowPostCheckList(w http.ResponseWriter, r *http.Request) {
 		helpers.ServerError(w, err)
 		return
 	}
-	fmt.Println(checkList)
-	checkList.Name = r.Form.Get("name_check_list")
-	checkList.Description = r.Form.Get("description")
-	NameOfPoints := r.Form["name_of_points[]"]
-	checkList.NameOfPoints = nil
-	checkList.NameOfPoints = append(checkList.NameOfPoints, NameOfPoints...)
-
-	fmt.Println(checkList)
 
 	form := forms.New(r.PostForm)
 	form.Required("name_check_list", "description")
 
+	//Сохраняем данные в сущности checkList
+	// var checkList models.CheckList
+	checkList.Name = r.Form.Get("name_check_list")
+	checkList.Duration, _ = strconv.Atoi(r.Form.Get("duration"))
+	checkList.Description = r.Form.Get("description")
+	checkList.TypeOfList, _ = strconv.Atoi(r.Form.Get("id_type_of_list"))
+	checkList.NameOfPoints = nil
+	NameOfPoints := r.Form["name_of_points[]"]
+	checkList.NameOfPoints = append(checkList.NameOfPoints, NameOfPoints...)
+
+	//Store item здесь парсим данные которые касаются выбранных материалов
+	itemsID := r.Form["check_list_store[]"]
+	itemsMinAmount := r.Form["amount_item_once[]"]
+
+	//Здесь сохраняем все выбранные материалы, а также проверяем правильно ли были введены числа
+	var items []models.Item
+	for i := 1; i < len(itemsID); i++ {
+		var item models.Item
+		id, err := strconv.Atoi(itemsID[i])
+		//Пропускаем материал который не был указан в форме
+		if err != nil {
+			continue
+		}
+		item.ID = id
+		storeItem, _ := m.DB.GetStoreItemByID(item.ID)
+		item.Dimension = storeItem.Dimension
+		item.Name = storeItem.Name
+		item.AmountItemOnce, err = strconv.ParseFloat(itemsMinAmount[i], 64)
+		if err != nil {
+			item.AmountItemOnce = itemsMinAmount[i]
+			form.Errors.Add("amount_item_once", "Необходимо ввести число, десятичные числа вводить через точку!")
+		}
+		items = append(items, item)
+	}
+	checkList.Items = items
+
 	if !form.Valid() {
+
+		var storeItems []models.StoreItem
+		storeItems, err = m.DB.GetAllStoreItem()
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
 
 		data := make(map[string]interface{})
 		data["check-list"] = checkList
+		data["store-items"] = storeItems
 
 		render.Template(w, r, "admin-check-list-show.page.html", &models.TemplateData{
 			Form:      form,
@@ -315,7 +357,7 @@ func (m *Repository) ShowPostCheckList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m.App.Session.Put(r.Context(), "flash", "Check-list saved")
+	m.App.Session.Put(r.Context(), "flash", "Чек-лист успешно сохранен")
 
 	http.Redirect(w, r, fmt.Sprintf("/admin/check-lists/%s", src), http.StatusSeeOther)
 }

@@ -30,8 +30,10 @@ func routes() *chi.Mux {
 	mux.Route("/admin", func(mux chi.Router) {
 		mux.Use(AuthAdmin)
 
-		mux.Get("/", handlers.Repo.HomeManager)
+		mux.Get("/", handlers.Repo.Dashboard)
 		mux.Get("/dashboard", handlers.Repo.Dashboard)
+
+		// mux.Get("/test", handlers.Repo.TestFetch)
 
 		//Check-lists-----------------------------------------------------------------------------------------------------------------------------------
 		mux.Get("/check-lists/{src}", handlers.Repo.CheckListAll)
@@ -55,6 +57,10 @@ func routes() *chi.Mux {
 		//delete any check-list
 		mux.Get("/delete-store/{id}", handlers.Repo.DeleteStoreItem)
 
+		//Manager
+		// mux.Get("/manager", handlers.Repo.StoreItemAll)
+		mux.Get("/manager-new", handlers.Repo.NewLead)
+
 		//Leads calendar------------------------------------------------------------------------------------------
 		// mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
 
@@ -69,14 +75,22 @@ func routes() *chi.Mux {
 	mux.Route("/store", func(mux chi.Router) {
 		mux.Use(AuthStore)
 
-		mux.Get("/", handlers.Repo.HomeStore)
+		mux.Get("/", handlers.Repo.StoreItemAll)
+		//Create new check-list
+		mux.Get("/new", handlers.Repo.NewStoreItem)
+		mux.Post("/new", handlers.Repo.NewPostStoreItem)
+		//Changes master-class
+		mux.Get("/item/{id}", handlers.Repo.ShowStoreItem)
+		mux.Post("/item/{id}", handlers.Repo.ShowPostStoreItem)
+		//delete any check-list
+		mux.Get("/delete/{id}", handlers.Repo.DeleteStoreItem)
 	})
 
 	//Manager pages
 	mux.Route("/manager", func(mux chi.Router) {
 		mux.Use(AuthManager)
 
-		mux.Get("/", handlers.Repo.HomeManager)
+		// mux.Get("/", handlers.Repo.HomeManager)
 	})
 
 	// login and logout
