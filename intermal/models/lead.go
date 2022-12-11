@@ -1,11 +1,37 @@
 package models
 
-type Program struct {
+type MasterClass struct {
 	ID          int
 	Name        string
 	Duration    int
 	Description string
-	Type        int
+}
+
+type Show struct {
+	ID          int
+	Name        string
+	Duration    int
+	Description string
+}
+
+type Animation struct {
+	ID          int
+	Name        string
+	Duration    int
+	Description string
+}
+
+type PartyAndQuest struct {
+	ID          int
+	Name        string
+	Duration    int
+	Description string
+}
+type Other struct {
+	ID          int
+	Name        string
+	Duration    int
+	Description string
 }
 
 type LeadHero struct {
@@ -47,7 +73,12 @@ type Lead struct {
 	CheckAssistants      bool   `db:"check_assistants"`
 	Description          string `db:"description"`
 	Duration             int
-	Programs             []Program
+	MasterClasses        []MasterClass
+	Animations           []Animation
+	PartyAndQuests       []PartyAndQuest
+	Others               []Other
+	Shows                []Show
+	Heroes               []LeadHero
 	Child                Child
 	Client               Client
 	Assistants           []Assistant

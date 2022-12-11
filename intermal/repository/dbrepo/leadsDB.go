@@ -232,6 +232,6 @@ func (m *postgresDBRepo) insertChild(ctx context.Context, child *models.Child, i
 
 //Get all leads -----------------------------------------------------------------------------------------------------------------
 
-func (m *postgresDBRepo) GetAllLeads() ([]models.Lead, error) {
+// func (m *postgresDBRepo) GetAllLeads() ([]models.Lead, error) {
 
-}
+// }
