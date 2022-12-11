@@ -1,25 +1,20 @@
 package models
 
-import "time"
-
 type Program struct {
-	ID       int
-	Name     string
-	Duration string
-}
-
-type Artist struct {
 	ID          int
 	Name        string
-	PhoneNumber int
-	Photo       string
+	Duration    int
+	Description string
+	Type        int
 }
 
-type Hero struct {
-	ID     int
-	Name   string
-	Gender string
-	Artist Artist
+type LeadHero struct {
+	ID              int
+	ArtistID        int
+	Description     string
+	HeroID          int
+	ArtistFirstName string
+	ArtistLastName  string
 }
 
 type Child struct {
@@ -27,24 +22,33 @@ type Child struct {
 	Name           string
 	Gender         int
 	Artist         Artist
-	DateOfBirthDay time.Time
+	DateOfBirthDay string
+	Age            int
+}
+
+type Client struct {
+	ID          int    `db:"id_client"`
+	FirstName   string `db:"first_name"`
+	LastName    string `db:"last_name"`
+	PhoneNumber string `db:"phone_number"`
+	Telegram    string `db:"telegram_client"`
 }
 
 type Lead struct {
-	ID                   int       `db:"id_lead"`
-	FirstNameClient      string    `db:"first_name"`
-	LastNameClient       string    `db:"last_name"`
-	AmountOfChildren     int       `db:"amount_of_children"`
-	AverageAgeOfChildren int       `db:"average_age_of_children"`
-	Address              string    `db:"address"`
-	Date                 time.Time `db:"date"`
-	ActiveLead           bool      `db:"active_lead"`
-	CheckArtists         bool      `db:"check_artists"`
-	Confirmed            bool      `db:"confirmed"`
-	CheckAssistants      bool      `db:"check_assistants"`
-	PhoneNumber          int
-	Telegram             string
+	ID                   int    `db:"id_lead"`
+	AmountOfChildren     int    `db:"amount_of_children"`
+	AverageAgeOfChildren int    `db:"average_age_of_children"`
+	Address              string `db:"address"`
+	Date                 string `db:"date"`
+	Time                 string `db:"time"`
+	ActiveLead           bool   `db:"active_lead"`
+	CheckArtists         bool   `db:"check_artists"`
+	Confirmed            bool   `db:"confirmed"`
+	CheckAssistants      bool   `db:"check_assistants"`
+	Description          string `db:"description"`
+	Duration             int
 	Programs             []Program
-	Heroes               []Hero
 	Child                Child
+	Client               Client
+	Assistants           []Assistant
 }

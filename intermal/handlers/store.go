@@ -100,7 +100,7 @@ func (m *Repository) NewPostStoreItem(w http.ResponseWriter, r *http.Request) {
 
 	m.App.Session.Put(r.Context(), "flash", "Материал сохранен")
 
-	http.Redirect(w, r, template, http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/store", http.StatusSeeOther)
 }
 
 func (m *Repository) ShowStoreItem(w http.ResponseWriter, r *http.Request) {
@@ -188,7 +188,7 @@ func (m *Repository) ShowPostStoreItem(w http.ResponseWriter, r *http.Request) {
 
 	m.App.Session.Put(r.Context(), "flash", "Материал изменен")
 
-	http.Redirect(w, r, template, http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/store", http.StatusSeeOther)
 }
 
 func (m *Repository) DeleteStoreItem(w http.ResponseWriter, r *http.Request) {

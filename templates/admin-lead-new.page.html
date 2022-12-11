@@ -1,0 +1,633 @@
+{{template "admin" .}}
+
+
+
+{{define "page-title"}}
+<h4>Новый Лид</h4>
+{{end}}
+
+{{define "css"}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    
+    <link rel="canonical" href="static/css/style.css">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/css/datepicker.min.css">
+    <script src="/static/js/phoneinput.js"></script>
+
+
+{{end}}
+
+{{define "content"}}
+
+{{$lead := index .Data "lead"}}
+
+
+
+
+
+    <div class="col-md-12">
+      
+        <form action="/admin/manager/lead-new" method="post" class="" novalidate enctype="multipart/form-data"> 
+
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+
+            <div class="mb-3">
+              <div class="row">
+                <div class="col-3">
+                  <label for="first_name" class="form-label">Имя клиента</label>
+              {{with .Form.Errors.Get "first_name"}}
+              <label for="" class="text-danger">{{.}}</label>
+              {{end}}
+              <input type="text" value="{{$lead.Client.FirstName}}" class="form-control {{with .Form.Errors.Get "first_name"}} is-invalid {{end}}" id="first_name" name="first_name" required>
+            
+                </div>
+              <div class="col-3"> 
+                <label for="last_name" class="form-label">Фамилия клиента</label>
+                {{with .Form.Errors.Get "last_name"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <input type="text" value="{{$lead.Client.LastName}}" class="form-control {{with .Form.Errors.Get "last_name"}} is-invalid {{end}}" id="last_name" name="last_name" required>
+          </div>
+          <div class="col-3"> 
+            <label for="phone_number" class="form-label">Номер телефона</label>
+                {{with .Form.Errors.Get "phone_number"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <input type="tel" data-tel-input value="{{$lead.Client.PhoneNumber}} " class="form-control {{with .Form.Errors.Get "phone_number"}} is-invalid {{end}}" id="phone_number" name="phone_number" required>
+      </div>
+      <div class="col-3"> 
+        <label for="telegram_client" class="form-label">Телеграм аккаунт</label>
+                {{with .Form.Errors.Get "telegram_client"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <input type="text" value="{{$lead.Client.Telegram}}" class="form-control {{with .Form.Errors.Get "telegram_client"}} is-invalid {{end}}" id="telegram_client" name="telegram_client" required>
+  </div>
+          </div>
+          </div>
+            
+             
+
+              <div class="mb-3">
+                <div class="row">
+                  <div class="col-3">
+                    <label for="name_child" class="form-label">Имя ребенка</label>
+                {{with .Form.Errors.Get "name_child"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <input type="text" value="{{$lead.Child.Name}}" class="form-control {{with .Form.Errors.Get "name_child"}} is-invalid {{end}}" id="name_child" name="name_child" required>
+              
+                  </div>
+                  <div class="col-3">
+                    <label for="age" class="form-label">Возраст ребенка</label>
+                {{with .Form.Errors.Get "age"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <input type="text" value="{{if ne $lead.Child.Age 0}}{{$lead.Child.Age}}{{end}}" class="form-control {{with .Form.Errors.Get "age"}} is-invalid {{end}}" id="age" name="age" required>
+              
+                  </div>
+                <div class="col-3"> 
+                  <label for="date" class="form-label">Дата проведения праздника</label>
+                  {{with .Form.Errors.Get "date"}}
+                  <label for="" class="text-danger">{{.}}</label>
+                  {{end}}
+                  <input type="text" value="{{$lead.Date}}" class="form-control {{with .Form.Errors.Get "date"}} is-invalid {{end}}" id="date" name="date" required>
+            </div>
+            <div class="col-3"> 
+              <label for="time" class="form-label">Время проведения праздника</label>
+              {{with .Form.Errors.Get "time"}}
+              <label for="" class="text-danger">{{.}}</label>
+              {{end}}
+              <input type="time" value="{{$lead.Time}}" class="form-control {{with .Form.Errors.Get "time"}} is-invalid {{end}}" id="time" name="time" required>
+        </div>
+            </div>
+            </div>
+          
+            
+          <div class="mb-3">
+            <div class="row">
+              <div class="col-6">
+                <label for="address" class="form-label">Адрес</label>
+                {{with .Form.Errors.Get "address"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <input type="text" value="{{$lead.Address}}" class="form-control {{with .Form.Errors.Get "address"}} is-invalid {{end}}" id="address" name="address" required>
+    
+              </div>
+              <div class="col-6">
+                <label for="date_of_birthday_child" class="form-label foo">Дата дня рождения ребенка</label>
+                {{with .Form.Errors.Get "date_of_birthday_child"}}
+                <label for="" class="text-danger">{{.}}</label>
+                {{end}}
+                <input type="text" value="{{$lead.Child.DateOfBirthDay}}" class="form-control {{with .Form.Errors.Get "date_of_birthday_child"}} is-invalid {{end}}" id="date_of_birthday_child" name="date_of_birthday_child" required>
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+          <div class="mb-3">
+            <div class="row">
+              <div class="col-3">
+                <label for="amount_of_children" class="form-label">Количество детей</label>
+            {{with .Form.Errors.Get "amount_of_children"}}
+            <label for="" class="text-danger">{{.}}</label>
+            {{end}}
+            <input type="text" value="{{if ne $lead.AmountOfChildren 0}}{{$lead.AmountOfChildren}}{{end}}" class="form-control {{with .Form.Errors.Get "amount_of_children"}} is-invalid {{end}}" id="amount_of_children" name="amount_of_children" required>
+          
+              </div>
+              <div class="col-3">
+                <label for="average_age_of_children" class="form-label">Средний возраст</label>
+            {{with .Form.Errors.Get "average_age_of_children"}}
+            <label for="" class="text-danger">{{.}}</label>
+            {{end}}
+            <input type="text" value="{{if ne $lead.AverageAgeOfChildren 0}}{{$lead.AverageAgeOfChildren}}{{end}}" class="form-control {{with .Form.Errors.Get "average_age_of_children"}} is-invalid {{end}}" id="average_age_of_children" name="average_age_of_children" required>
+          
+              </div>
+            <div class="col-3"> 
+              <label for="id_gender_child" class="form-label">Пол ребенка</label>
+              {{with .Form.Errors.Get "id_gender_child"}}
+            <label for="" class="text-danger">{{.}}</label>
+            {{end}}
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender_child" value="1" id="id_gender_child1" checked>
+                <label class="form-check-label" for="id_gender_child1">
+                  Мужской
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender_child" value="2" id="id_gender_child2">
+                <label class="form-check-label" for="id_gender_child2">
+                  Женский
+                </label>
+              </div>
+            </div>
+
+
+          
+
+
+
+        </div>
+        
+        </div>
+        </div>
+
+
+
+
+
+
+        <div class="mb-3">
+          <div class="row">
+            <div class="col-12">
+            <label for="description" class="form-label">Комментарий к заказу</label>
+            {{with .Form.Errors.Get "description"}}
+            <label for="" class="text-danger">{{.}}</label>
+            {{end}}
+            <textarea type="text" value="{{$lead.Address}}" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}" rows="5" id="description" name="description" required></textarea>
+          </div>
+          </div>
+        </div>
+      
+
+
+
+
+
+
+
+
+
+<!-- Shows start -->
+              <a type="button" onclick="add_program()" class="btn btn-info">Добавить пункт</a>
+              <a type="button" onclick="delete_program()" class="btn btn-danger">Удалить пункт</a>
+              <div class="mb-3" id="item-main-program">
+                {{$shows := index .Data "shows"}}
+                <div class="row">
+                <div class="col-5">
+                  <label for="point" class="form-label">Выбрать шоу-программу</label>
+                </div>
+                <div class="col-7">
+                  <label for="point" class="form-label">Комментарий</label> 
+                </div>
+              </div>
+                <div id="many_program" class="item-program" style="display: none;">
+                  <div class="row">
+                    <div class="col-5">
+                      <select name="shows[]" class="form-select" aria-label="Default item">
+                        <option selected></option>
+                        {{range $shows}}
+                        <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+                        {{end}}
+                      </select>
+                    </div>
+                    <div class="col-7">
+                      <input type="text" value="" class="form-control" id="shows_description[]" name="shows_description[]" required>
+                    </div>
+          
+                  </div>
+                  
+                
+                </div>
+
+                {{range $lead.Shows}}
+                <div id="many_program" class="item-program" style="display: none;">
+                  <div class="row">
+                    <div class="col-5">
+                      <select name="shows[]" class="form-select" aria-label="Default item">
+                        <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+                        {{range $shows}}
+                        <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+                        {{end}}
+                      </select>
+                    </div>
+                    <div class="col-7">
+                      <input type="text" value="{{.Description}}" class="form-control" id="shows_description[]" name="shows_description[]" required>
+                    </div>
+          
+                  </div>
+                
+                </div>
+                {{end}}
+            </div>
+<!-- Shows end -->
+
+
+
+
+<!-- Master-class start -->
+<a type="button" onclick="add_master_class()" class="btn btn-info">Добавить пункт</a>
+<a type="button" onclick="delete_master_class()" class="btn btn-danger">Удалить пункт</a>
+<div class="mb-3" id="item-main-master_class">
+  {{$masterClass := index .Data "master_class"}}
+  <div class="row">
+    <div class="col-5">
+      <label for="point" class="form-label">Выбрать мастер-класс</label>
+    </div>
+    <div class="col-7">
+      <label for="point" class="form-label">Комментарий</label> 
+    </div>
+  </div>
+  <div id="many_master_class" class="item-master_class" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="master_class[]" class="form-select" aria-label="Default item">
+          <option selected></option>
+          {{range $masterClass}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="" class="form-control" id="master_class_description[]" name="master_class_description[]" required>
+      </div>
+
+    </div>
+    
+  
+  </div>
+
+  {{range $lead.MasterClasses}}
+  <div id="many_master_class" class="item-master_class" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="master_class[]" class="form-select" aria-label="Default item">
+          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{range $masterClass}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="{{.Description}}" class="form-control" id="master_class_description[]" name="master_class_description[]" required>
+      </div>
+
+    </div>
+  
+  </div>
+  {{end}}
+</div>
+<!-- Master-class end -->
+
+
+<!-- Animation start -->
+<a type="button" onclick="add_animation()" class="btn btn-info">Добавить пункт</a>
+<a type="button" onclick="delete_animation()" class="btn btn-danger">Удалить пункт</a>
+<div class="mb-3" id="item-main-animation">
+  {{$animation := index .Data "animation"}}
+  <div class="row">
+    <div class="col-5">
+      <label for="point" class="form-label">Выбрать анимацию</label>
+    </div>
+    <div class="col-7">
+      <label for="point" class="form-label">Комментарий</label> 
+    </div>
+  </div>
+  <div id="many_animation" class="item-animation" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="animation[]" class="form-select" aria-label="Default item">
+          <option selected></option>
+          {{range $animation}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="" class="form-control" id="animation_description[]" name="animation_description[]" required>
+      </div>
+
+    </div>
+    
+  
+  </div>
+
+  {{range $lead.Animations}}
+  <div id="many_animation" class="item-animation" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="animation[]" class="form-select" aria-label="Default item">
+          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{range $animation}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="{{.Description}}" class="form-control" id="animation_description[]" name="animation_description[]" required>
+      </div>
+
+    </div>
+  
+  </div>
+  {{end}}
+</div>
+<!-- Animation end -->
+
+
+
+
+<!-- Party and quest start -->
+<a type="button" onclick="add_party_and_quest()" class="btn btn-info">Добавить пункт</a>
+<a type="button" onclick="delete_party_and_quest()" class="btn btn-danger">Удалить пункт</a>
+<div class="mb-3" id="item-main-party_and_quest">
+  {{$partyAndQuest := index .Data "party_and_quest"}}
+  <div class="row">
+    <div class="col-5">
+      <label for="point" class="form-label">Выбрать вечеринку или квест</label>
+    </div>
+    <div class="col-7">
+      <label for="point" class="form-label">Комментарий</label> 
+    </div>
+  </div>
+  <div id="many_party_and_quest" class="item-party_and_quest" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="party_and_quest[]" class="form-select" aria-label="Default item">
+          <option selected></option>
+          {{range $partyAndQuest}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="" class="form-control" id="party_and_quest_description[]" name="party_and_quest_description[]" required>
+      </div>
+
+    </div>
+    
+  
+  </div>
+
+  {{range $lead.PartyAndQuests}}
+  <div id="many_party_and_quest" class="item-party_and_quest" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="party_and_quest[]" class="form-select" aria-label="Default item">
+          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{range $partyAndQuest}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="{{.Description}}" class="form-control" id="party_and_quest_description[]" name="party_and_quest_description[]" required>
+      </div>
+
+    </div>
+  
+  </div>
+  {{end}}
+</div>
+<!-- Party and quest end -->
+
+
+
+
+
+
+<!-- Other start -->
+<a type="button" onclick="add_other()" class="btn btn-info">Добавить пункт</a>
+<a type="button" onclick="delete_other()" class="btn btn-danger">Удалить пункт</a>
+<div class="mb-3" id="item-main-other">
+  {{$other := index .Data "other"}}
+  <div class="row">
+    <div class="col-5">
+      <label for="point" class="form-label">Выбрать другое</label>
+    </div>
+    <div class="col-7">
+      <label for="point" class="form-label">Комментарий</label> 
+    </div>
+  </div>
+  <div id="many_other" class="item-other" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="other[]" class="form-select" aria-label="Default item">
+          <option selected></option>
+          {{range $other}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="" class="form-control" id="other_description[]" name="other_description[]" required>
+      </div>
+
+    </div>
+    
+  
+  </div>
+
+  {{range $lead.Others}}
+  <div id="many_other" class="item-other" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="other[]" class="form-select" aria-label="Default item">
+          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{range $other}}
+          <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-7">
+        <input type="text" value="{{.Description}}" class="form-control" id="other_description[]" name="other_description[]" required>
+      </div>
+
+    </div>
+  
+  </div>
+  {{end}}
+</div>
+<!-- Other end -->
+
+
+
+
+
+
+<!-- Hero start -->
+<a type="button" onclick="add_hero()" class="btn btn-info">Добавить пункт</a>
+<a type="button" onclick="delete_hero()" class="btn btn-danger">Удалить пункт</a>
+<div class="mb-3" id="item-main-hero">
+  {{$heroes := index .Data "heroes"}}
+  {{$artists := index .Data "artists"}}
+  <div class="row">
+    <div class="col-5">
+      <label for="point" class="form-label">Выбрать героя</label>
+    </div>
+    <div class="col-7">
+      <label for="point" class="form-label">Назначить аниматора</label> 
+    </div>
+  </div>
+  <div id="many_hero" class="item-hero" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="id_hero[]" class="form-select" aria-label="Default item">
+          <option selected></option>
+          {{range $heroes}}
+          <option value="{{.ID}}">{{.Name}}</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-5">
+        <select name="id_artist[]" class="form-select" aria-label="Default item">
+          <option selected></option>
+          {{range $artists}}
+          <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
+          {{end}}
+        </select>
+      </div>
+
+    </div>
+    
+  
+  </div>
+  {{range $lead.Heroes}}
+  <div id="many_hero" class="item-hero">
+    <div class="row">
+      <div class="col-5">
+        <select name="id_hero[]" class="form-select" aria-label="Default item">
+          <option selected value="{{.ID}}">{{.Name}}</option>
+          {{range $heroes}}
+          <option value="{{.ID}}">{{.Name}}</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-5">
+        <select name="id_artist[]" class="form-select" aria-label="Default item">
+          <option selected value="{{.ArtistID}}">{{.ArtistFirstName}} {{.ArtistLastName}}</option>
+          {{range $artists}}
+          <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
+          {{end}}
+        </select>
+      </div>
+
+    </div>
+    
+  
+  </div>
+  {{end}}
+
+</div>
+<!-- Hero end -->
+
+
+
+
+
+
+<!-- Assistant start -->
+<a type="button" onclick="add_assistant()" class="btn btn-info">Добавить пункт</a>
+<a type="button" onclick="delete_assistant()" class="btn btn-danger">Удалить пункт</a>
+<div class="mb-3" id="item-main-assistant">
+  {{$assistants := index .Data "assistants"}}
+  <div class="row">
+    <div class="col-5">
+      <label for="point" class="form-label">Наначить техника (ассистента)</label>
+    </div>
+  </div>
+  <div id="many_assistant" class="item-assistant" style="display: none;">
+    <div class="row">
+      <div class="col-5">
+        <select name="id_assistant[]" class="form-select" aria-label="Default item">
+          <option selected></option>
+          {{range $assistants}}
+          <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
+          {{end}}
+        </select>
+      </div>
+    </div>
+    
+  </div>
+
+</div>
+<!-- Assistant end -->
+
+                
+            
+        
+              
+            
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+           <a href="/admin/leads" class="btn btn-warning">Отмена</a>
+          </form>
+    </div>
+{{end}}
+
+{{define "js"}}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/js/datepicker-full.min.js"></script>
+    <script src="/static/js/my.js"></script>
+ 
+    <script>
+//       Data = new Date();
+// Year = Data.getFullYear();
+// Month = Data.getMonth()+1;
+// Day = Data.getDate();
+// console.log(Day+"-"+Month+"-"+Year)
+// let str = Day+"/"+Month+"/"+Year
+// console.log(str)
+      const elemDate = document.querySelector('input[name="date"]');
+const datepickerDate = new Datepicker(elemDate, {
+  format: "dd-mm-yyyy",
+}); 
+
+const elemBirthDay = document.querySelector('input[name="date_of_birthday_child"]');
+const datepickerBirthDay = new Datepicker(elemBirthDay, {
+  format: "dd-mm-yyyy",
+}); 
+
+
+
+
+    </script>
+{{end}}

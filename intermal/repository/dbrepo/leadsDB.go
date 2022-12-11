@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/DaniilShd/RichShowPlatforma/intermal/models"
@@ -11,13 +12,20 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	idClient, idChild, err := m.insertClient(ctx, lead)
+	idClient, err := m.insertClient(ctx, &lead.Client)
 	if err != nil {
 		return err
 	}
+	fmt.Println(idClient)
+	idChild, err := m.insertChild(ctx, &lead.Child, idClient)
+	if err != nil {
+		return err
+	}
+	fmt.Println(idChild)
 	queryInsertLead := `insert into leads
-	(id_client, amount_of_children, average_age_of_children, address, date, id_client_child)
-	VALUES ($1, $2, $3, $4, $5, $6)
+	(id_client, amount_of_children, average_age_of_children, address, date, time, id_client_child)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)
+	returning id_lead
 	`
 
 	var idLead int
@@ -27,10 +35,41 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 		lead.AverageAgeOfChildren,
 		lead.Address,
 		lead.Date,
+		lead.Time,
 		idChild).Scan(&idLead); err != nil {
+
 		return err
 	}
-	err = m.insertPrograms(ctx, &lead.Programs, idLead)
+	if lead.MasterClasses != nil {
+		err = m.insertMasterCLass(ctx, &lead.MasterClasses, idLead)
+		if err != nil {
+
+			return err
+
+		}
+	}
+	if lead.Shows != nil {
+		err = m.insertShows(ctx, &lead.Shows, idLead)
+		if err != nil {
+
+			return err
+		}
+	}
+	if lead.PartyAndQuests != nil {
+		err = m.insertPartyAndQuest(ctx, &lead.PartyAndQuests, idLead)
+		if err != nil {
+
+			return err
+		}
+	}
+	if lead.Animations != nil {
+		err = m.insertAnimation(ctx, &lead.Animations, idLead)
+		if err != nil {
+
+			return err
+		}
+	}
+	err = m.insertOthers(ctx, &lead.Others, idLead)
 	if err != nil {
 		return err
 	}
@@ -38,17 +77,62 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 	if err != nil {
 		return err
 	}
+	err = m.insertAssistants(ctx, &lead.Assistants, idLead)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs *[]models.Program, idLead int) error {
-	queryInsertProgram := `insert into lead_program
+// Пакет функций для добавления рограмм в заказ (Лид) Start-------------------------------------------------------------------------
+func (m *postgresDBRepo) insertMasterCLass(ctx context.Context, programs *[]models.MasterClass, idLead int) error {
+	var ID []int
+	for _, item := range *programs {
+		ID = append(ID, item.ID)
+	}
+	return m.insertPrograms(ctx, ID, idLead)
+}
+
+func (m *postgresDBRepo) insertShows(ctx context.Context, programs *[]models.Show, idLead int) error {
+	var ID []int
+	for _, item := range *programs {
+		ID = append(ID, item.ID)
+	}
+	return m.insertPrograms(ctx, ID, idLead)
+}
+
+func (m *postgresDBRepo) insertPartyAndQuest(ctx context.Context, programs *[]models.PartyAndQuest, idLead int) error {
+	var ID []int
+	for _, item := range *programs {
+		ID = append(ID, item.ID)
+	}
+	return m.insertPrograms(ctx, ID, idLead)
+}
+
+func (m *postgresDBRepo) insertAnimation(ctx context.Context, programs *[]models.Animation, idLead int) error {
+	var ID []int
+	for _, item := range *programs {
+		ID = append(ID, item.ID)
+	}
+	return m.insertPrograms(ctx, ID, idLead)
+}
+
+func (m *postgresDBRepo) insertOthers(ctx context.Context, programs *[]models.Other, idLead int) error {
+	var ID []int
+	for _, item := range *programs {
+		ID = append(ID, item.ID)
+	}
+	return m.insertPrograms(ctx, ID, idLead)
+}
+
+func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs []int, idLead int) error {
+	queryInsertProgram := `insert into lead_programs
 	(id_check_list, id_lead)
 	VALUES ($1, $2)
 	`
 
-	for _, program := range *programs {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, idLead)
+	for _, program := range programs {
+		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program, idLead)
 		if err != nil {
 			return err
 		}
@@ -56,14 +140,16 @@ func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs *[]models.
 	return nil
 }
 
-func (m *postgresDBRepo) insertHeroes(ctx context.Context, heroes *[]models.Hero, idLead int) error {
-	queryInsertProgram := `insert into lead_heroes
-	(id_hero, id_lead)
-	VALUES ($1, $2)
+// Пакет функций для добавления рограмм в заказ (Лид) End-------------------------------------------------------------------------
+
+func (m *postgresDBRepo) insertHeroes(ctx context.Context, heroes *[]models.LeadHero, idLead int) error {
+	queryInsertHeroes := `insert into lead_heroes
+	(id_hero, id_lead, id_artist)
+	VALUES ($1, $2, $3)
 	`
 
 	for _, hero := range *heroes {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, hero.ID, idLead)
+		_, err := m.DB.ExecContext(ctx, queryInsertHeroes, hero.HeroID, idLead, hero.ArtistID)
 		if err != nil {
 			return err
 		}
@@ -71,14 +157,30 @@ func (m *postgresDBRepo) insertHeroes(ctx context.Context, heroes *[]models.Hero
 	return nil
 }
 
-func (m *postgresDBRepo) insertClient(ctx context.Context, lead *models.Lead) (int, int, error) {
+func (m *postgresDBRepo) insertAssistants(ctx context.Context, assistants *[]models.Assistant, idLead int) error {
+	queryInsertAssistants := `insert into lead_assistants
+	(id_assistant, id_lead)
+	VALUES ($1, $2)
+	`
 
-	querySelectClient := `SELECT * from clients
+	for _, assistant := range *assistants {
+		_, err := m.DB.ExecContext(ctx, queryInsertAssistants, assistant.ID, idLead)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) insertClient(ctx context.Context, client *models.Client) (int, error) {
+
+	querySelectClient := `SELECT id_client from clients
 	where phone_number = $1
 	`
 	var idClient int
-	if err := m.DB.QueryRowContext(ctx, querySelectClient, lead.PhoneNumber).Scan(&idClient); err != nil {
-		return 0, 0, err
+	row := m.DB.QueryRowContext(ctx, querySelectClient, client.PhoneNumber)
+	if err := row.Scan(&idClient); err != nil {
+		idClient = 0
 	}
 
 	//Если такой клиент уже есть в базе данных пропускаем запись клиента
@@ -88,45 +190,48 @@ func (m *postgresDBRepo) insertClient(ctx context.Context, lead *models.Lead) (i
 		VALUES ($1, $2, $3, $4)
 		`
 		if err := m.DB.QueryRowContext(ctx, queryInsertClient,
-			lead.FirstNameClient,
-			lead.LastNameClient,
-			lead.PhoneNumber,
-			lead.Telegram).Scan(&idClient); err != nil {
-			return 0, 0, err
+			client.FirstName,
+			client.LastName,
+			client.PhoneNumber,
+			client.Telegram).Scan(&idClient); err != nil {
+			return 0, err
 		}
 	}
-	lead.ID = idClient
-	idChild, err := m.insertChilds(ctx, lead)
-	if err != nil {
-		return 0, 0, err
-	}
-	return idClient, idChild, nil
+
+	return idClient, nil
 }
 
-func (m *postgresDBRepo) insertChilds(ctx context.Context, lead *models.Lead) (int, error) {
+func (m *postgresDBRepo) insertChild(ctx context.Context, child *models.Child, idClient int) (int, error) {
 
-	querySelectChild := `SELECT * from clients
+	querySelectChild := `SELECT id_child from clients
 	where name_child = $1 AND id_client = $2 AND date_of_birthday_child = $3
 	`
 	var idChild int
-	if err := m.DB.QueryRowContext(ctx, querySelectChild, lead.Child.Name, lead.ID, lead.Child.DateOfBirthDay).Scan(&idChild); err != nil {
-		return 0, err
-	}
+	row := m.DB.QueryRowContext(ctx, querySelectChild, child.Name, idClient, child.DateOfBirthDay)
 
-	//если такой ребенок уже есть в базе, записывать его снова не нужно, возвращаем id этого ребенка
-	if idChild != 0 {
+	if err := row.Scan(&idChild); err == nil {
 		return idChild, nil
 	}
+	//если такой ребенок уже есть в базе, записывать его снова не нужно, возвращаем id этого ребенка
+
 	queryInsertChild := `insert into client_child
-		(name_child, date_of_birthday_child, id_client, id_gender_child)
-		VALUES ($1, $2, $3, $4)
+		(name_child, date_of_birthday_child, id_client, age, id_gender_child)
+		VALUES ($1, $2, $3, $4, $5)
+		Returning id_client_child
 		`
 	if err := m.DB.QueryRowContext(ctx, queryInsertChild,
-		lead.Child.Name,
-		lead.Child.DateOfBirthDay,
-		lead.ID,
-		lead.Child.Gender).Scan(&idChild); err != nil {
+		child.Name,
+		child.DateOfBirthDay,
+		idClient,
+		child.Age,
+		child.Gender).Scan(&idChild); err != nil {
 		return 0, err
 	}
 	return idChild, nil
+}
+
+//Get all leads -----------------------------------------------------------------------------------------------------------------
+
+func (m *postgresDBRepo) GetAllLeads() ([]models.Lead, error) {
+
 }

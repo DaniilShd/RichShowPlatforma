@@ -22,4 +22,14 @@ type DatabaseRepo interface {
 
 	//Manager
 	InsertLead(lead *models.Lead) error
+	// GetAllLeads() ([]models.Lead, error)
+
+	//Assistant
+	GetAllAssistants() (*[]models.Assistant, error)
+
+	//Heroes
+	GetAllHeroes() (*[]models.Hero, error)
+
+	//Artist
+	GetAllArtists() (*[]models.Artist, error)
 }

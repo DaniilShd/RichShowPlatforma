@@ -39,7 +39,7 @@
               {{with .Form.Errors.Get "current_amount"}}
               <label for="" class="text-danger">{{.}}</label>
               {{end}}
-              <input required type="text" value="{{$storeItem.CurrentAmount}}" class="form-control {{with .Form.Errors.Get "current_amount"}} is-invalid {{end}}"  rows="5" id="current_amount" name="current_amount">
+              <input required type="text" value="{{if ne $storeItem.CurrentAmount 0}} {{$storeItem.CurrentAmount}}{{end}}" class="form-control {{with .Form.Errors.Get "current_amount"}} is-invalid {{end}}"  rows="5" id="current_amount" name="current_amount">
             </div>
 
             <div class="mb-3">
@@ -55,7 +55,7 @@
               {{with .Form.Errors.Get "min_amount"}}
               <label for="" class="text-danger">{{.}}</label>
               {{end}}
-              <input required type="text" value="{{$storeItem.MinAmount}}" class="form-control {{with .Form.Errors.Get "min_amount"}} is-invalid {{end}}"  rows="5" id="min_amount" name="min_amount">
+              <input required type="text" value="{{if ne $storeItem.MinAmount 0}} {{$storeItem.MinAmount}}{{end}}" class="form-control {{with .Form.Errors.Get "min_amount"}} is-invalid {{end}}"  rows="5" id="min_amount" name="min_amount">
             </div>
   
             <div class="mb-3">

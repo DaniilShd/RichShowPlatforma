@@ -59,7 +59,8 @@ func routes() *chi.Mux {
 
 		//Manager
 		// mux.Get("/manager", handlers.Repo.StoreItemAll)
-		mux.Get("/manager-new", handlers.Repo.NewLead)
+		mux.Get("/manager/lead-new", handlers.Repo.NewLead)
+		mux.Post("/manager/lead-new", handlers.Repo.NewPostLead)
 
 		//Leads calendar------------------------------------------------------------------------------------------
 		// mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)

@@ -108,8 +108,7 @@
                     <div class="row">
                       <div class="col-4">
                         <select name="check_list_store[]" class="form-select" aria-label="Default item">
-                          <option selected value="{{.ID}}"
-                          >{{.Name}}  ({{.Dimension}})</option>
+                          <option selected value="{{.ID}}">{{.Name}}  ({{.Dimension}})</option>
                           {{range $storeItems}}
                           <option value="{{.ID}}">{{.Name}}  ({{.Dimension}})</option>
                           {{end}}
