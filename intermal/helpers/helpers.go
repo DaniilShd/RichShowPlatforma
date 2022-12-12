@@ -58,3 +58,10 @@ func ServerError(w http.ResponseWriter, err error) {
 	app.ErrorLog.Println(trace)
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
+
+func ConvertNumberPhone(number string) string {
+	if len(number) == 10 {
+		number = "+7 (" + number[0:3] + ") " + number[3:6] + "-" + number[6:8] + "-" + number[8:10]
+	}
+	return number
+}

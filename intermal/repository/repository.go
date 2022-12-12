@@ -26,10 +26,22 @@ type DatabaseRepo interface {
 
 	//Assistant
 	GetAllAssistants() (*[]models.Assistant, error)
+	GetAssistantByID(id int) (*models.Assistant, error)
+	InsertAssistant(assistant *models.Assistant) error
+	UpdateAssistant(assistant *models.Assistant) error
+	DeleteAssistantByID(id int) error
 
 	//Heroes
 	GetAllHeroes() (*[]models.Hero, error)
+	GetHeroByID(id int) (*models.Hero, error)
+	InsertHero(hero *models.Hero) error
+	UpdateHero(hero *models.Hero) error
+	DeleteHeroByID(id int) error
 
 	//Artist
 	GetAllArtists() (*[]models.Artist, error)
+	GetArtistByID(id int) (*models.Artist, error)
+	InsertArtist(artist *models.Artist) error
+	UpdateArtist(artist *models.Artist) error
+	DeleteArtistByID(id int) error
 }

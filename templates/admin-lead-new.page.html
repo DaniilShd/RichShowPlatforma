@@ -236,7 +236,7 @@
                 </div>
 
                 {{range $lead.Shows}}
-                <div id="many_program" class="item-program" style="display: none;">
+                <div id="many_program" class="item-program">
                   <div class="row">
                     <div class="col-5">
                       <select name="shows[]" class="form-select" aria-label="Default item">
@@ -293,7 +293,7 @@
   </div>
 
   {{range $lead.MasterClasses}}
-  <div id="many_master_class" class="item-master_class" style="display: none;">
+  <div id="many_master_class" class="item-master_class">
     <div class="row">
       <div class="col-5">
         <select name="master_class[]" class="form-select" aria-label="Default item">
@@ -348,7 +348,7 @@
   </div>
 
   {{range $lead.Animations}}
-  <div id="many_animation" class="item-animation" style="display: none;">
+  <div id="many_animation" class="item-animation">
     <div class="row">
       <div class="col-5">
         <select name="animation[]" class="form-select" aria-label="Default item">
@@ -405,7 +405,7 @@
   </div>
 
   {{range $lead.PartyAndQuests}}
-  <div id="many_party_and_quest" class="item-party_and_quest" style="display: none;">
+  <div id="many_party_and_quest" class="item-party_and_quest">
     <div class="row">
       <div class="col-5">
         <select name="party_and_quest[]" class="form-select" aria-label="Default item">
@@ -464,7 +464,7 @@
   </div>
 
   {{range $lead.Others}}
-  <div id="many_other" class="item-other" style="display: none;">
+  <div id="many_other" class="item-other">
     <div class="row">
       <div class="col-5">
         <select name="other[]" class="form-select" aria-label="Default item">
@@ -532,7 +532,7 @@
     <div class="row">
       <div class="col-5">
         <select name="id_hero[]" class="form-select" aria-label="Default item">
-          <option selected value="{{.ID}}">{{.Name}}</option>
+          <option selected value="{{.ID}}">{{.HeroName}}</option>
           {{range $heroes}}
           <option value="{{.ID}}">{{.Name}}</option>
           {{end}}
@@ -568,7 +568,7 @@
   {{$assistants := index .Data "assistants"}}
   <div class="row">
     <div class="col-5">
-      <label for="point" class="form-label">Наначить техника (ассистента)</label>
+      <label for="point" class="form-label">Назначить техника (ассистента)</label>
     </div>
   </div>
   <div id="many_assistant" class="item-assistant" style="display: none;">

@@ -40,36 +40,8 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 
 		return err
 	}
-	if lead.MasterClasses != nil {
-		err = m.insertMasterCLass(ctx, &lead.MasterClasses, idLead)
-		if err != nil {
 
-			return err
-
-		}
-	}
-	if lead.Shows != nil {
-		err = m.insertShows(ctx, &lead.Shows, idLead)
-		if err != nil {
-
-			return err
-		}
-	}
-	if lead.PartyAndQuests != nil {
-		err = m.insertPartyAndQuest(ctx, &lead.PartyAndQuests, idLead)
-		if err != nil {
-
-			return err
-		}
-	}
-	if lead.Animations != nil {
-		err = m.insertAnimation(ctx, &lead.Animations, idLead)
-		if err != nil {
-
-			return err
-		}
-	}
-	err = m.insertOthers(ctx, &lead.Others, idLead)
+	err = m.insertPrograms(ctx, lead, idLead)
 	if err != nil {
 		return err
 	}
@@ -85,54 +57,38 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 }
 
 // Пакет функций для добавления рограмм в заказ (Лид) Start-------------------------------------------------------------------------
-func (m *postgresDBRepo) insertMasterCLass(ctx context.Context, programs *[]models.MasterClass, idLead int) error {
-	var ID []int
-	for _, item := range *programs {
-		ID = append(ID, item.ID)
-	}
-	return m.insertPrograms(ctx, ID, idLead)
-}
 
-func (m *postgresDBRepo) insertShows(ctx context.Context, programs *[]models.Show, idLead int) error {
-	var ID []int
-	for _, item := range *programs {
-		ID = append(ID, item.ID)
-	}
-	return m.insertPrograms(ctx, ID, idLead)
-}
-
-func (m *postgresDBRepo) insertPartyAndQuest(ctx context.Context, programs *[]models.PartyAndQuest, idLead int) error {
-	var ID []int
-	for _, item := range *programs {
-		ID = append(ID, item.ID)
-	}
-	return m.insertPrograms(ctx, ID, idLead)
-}
-
-func (m *postgresDBRepo) insertAnimation(ctx context.Context, programs *[]models.Animation, idLead int) error {
-	var ID []int
-	for _, item := range *programs {
-		ID = append(ID, item.ID)
-	}
-	return m.insertPrograms(ctx, ID, idLead)
-}
-
-func (m *postgresDBRepo) insertOthers(ctx context.Context, programs *[]models.Other, idLead int) error {
-	var ID []int
-	for _, item := range *programs {
-		ID = append(ID, item.ID)
-	}
-	return m.insertPrograms(ctx, ID, idLead)
-}
-
-func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs []int, idLead int) error {
+func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs *models.Lead, idLead int) error {
 	queryInsertProgram := `insert into lead_programs
 	(id_check_list, id_lead)
 	VALUES ($1, $2)
 	`
-
-	for _, program := range programs {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program, idLead)
+	for _, program := range programs.MasterClasses {
+		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, idLead)
+		if err != nil {
+			return err
+		}
+	}
+	for _, program := range programs.Shows {
+		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, idLead)
+		if err != nil {
+			return err
+		}
+	}
+	for _, program := range programs.PartyAndQuests {
+		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, idLead)
+		if err != nil {
+			return err
+		}
+	}
+	for _, program := range programs.Animations {
+		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, idLead)
+		if err != nil {
+			return err
+		}
+	}
+	for _, program := range programs.Others {
+		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, idLead)
 		if err != nil {
 			return err
 		}

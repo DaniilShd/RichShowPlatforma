@@ -114,7 +114,9 @@ func (m *Repository) NewPostLead(w http.ResponseWriter, r *http.Request) {
 	phoneNumber = strings.ReplaceAll(phoneNumber, "(", "")
 	phoneNumber = strings.ReplaceAll(phoneNumber, ")", "")
 	phoneNumber = strings.ReplaceAll(phoneNumber, "+", "")
-	phoneNumber = phoneNumber[1:]
+	if len(phoneNumber) > 1 {
+		phoneNumber = phoneNumber[1:]
+	}
 	lead.Client.PhoneNumber = phoneNumber
 
 	lead.Client.Telegram = r.Form.Get("telegram_client")
@@ -245,6 +247,25 @@ func (m *Repository) NewPostLead(w http.ResponseWriter, r *http.Request) {
 	}
 	lead.Others = others
 
+	// heroesIDs := r.Form["id_hero[]"]
+	// artistID := r.Form["id_artist[]"]
+
+	// var heroes []models.LeadHero!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// for i := 1; i < len(heroesIDs); i++ {
+	// 	var hero models.LeadHero
+	// 	id, err := strconv.Atoi(heroesIDs[i])
+	// 	if err != nil {
+	// 		continue
+	// 	}
+	// 	hero.ID = id
+	// 	heroDB, _ := m.DB.GetHeroByID(hero.ID)
+	// 	hero.HeroName = heroDB.Name
+	// 	other.Description = otherDescription[i]
+	// 	others = append(others, other)
+	// }
+	// lead.Others = others
+
+	//Здесь сохраняем все выбранные шоу программы
 	if !form.Valid() {
 		//Выбираем из базы данных все программы
 		shows, err := m.DB.GetAllCheckListsOfType(CHECK_LISTS_TYPE_OF_SHOW)
@@ -290,9 +311,9 @@ func (m *Repository) NewPostLead(w http.ResponseWriter, r *http.Request) {
 			helpers.ServerError(w, err)
 			return
 		}
-		if len(lead.Client.PhoneNumber) == 10 {
-			lead.Client.PhoneNumber = "+7 (" + lead.Client.PhoneNumber[0:3] + ") " + lead.Client.PhoneNumber[3:6] + "-" + lead.Client.PhoneNumber[6:8] + "-" + lead.Client.PhoneNumber[8:10]
-		}
+		lead.Client.PhoneNumber = helpers.ConvertNumberPhone(lead.Client.PhoneNumber)
+
+		fmt.Println(lead)
 
 		data := make(map[string]interface{})
 		data["lead"] = lead

@@ -66,9 +66,32 @@ func routes() *chi.Mux {
 		// mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
 
 		//Animators
-		mux.Get("/animator", handlers.Repo.Dashboard)
-		mux.Get("/animator-new", handlers.Repo.Dashboard)
+		mux.Get("/animators", handlers.Repo.AnimatorsAll)
+		//New animator
+		mux.Get("/animator-new", handlers.Repo.NewAnimator)
+		mux.Post("/animator-new", handlers.Repo.NewPostAnimator)
+		//Show and delete
+		mux.Get("/animator-delete/{id}", handlers.Repo.DeleteAnimator)
+		//Show anumator
+		mux.Get("/animator/{id}", handlers.Repo.ShowAnimator)
+		//Show change
+		mux.Get("/animator-change/{id}", handlers.Repo.ChangeAnimator)
+		mux.Post("/animator-change/{id}", handlers.Repo.ChangePostAnimator)
+
 		mux.Get("/send-mail-animator", handlers.Repo.Dashboard)
+
+		//Assistants
+		mux.Get("/assistants", handlers.Repo.AssistantsAll)
+		//New Assistants
+		mux.Get("/assistant-new", handlers.Repo.NewAssistant)
+		mux.Post("/assistant-new", handlers.Repo.NewPostAssistant)
+		//Show and delete
+		mux.Get("/assistant-delete/{id}", handlers.Repo.DeleteAssistant)
+		//Show Assistant
+		mux.Get("/assistant/{id}", handlers.Repo.ShowAssistant)
+		//Show change Assistant
+		mux.Get("/assistant-change/{id}", handlers.Repo.ChangeAssistant)
+		mux.Post("/assistant-change/{id}", handlers.Repo.ChangePostAssistant)
 
 	})
 

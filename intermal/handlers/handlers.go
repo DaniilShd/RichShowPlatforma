@@ -32,3 +32,10 @@ func NewHandlers(r *Repository) {
 func (m *Repository) Dashboard(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "admin-dashboard.page.html", &models.TemplateData{})
 }
+
+func convertNumberPhone(number string) string {
+	if len(number) == 10 {
+		number = "+7 (" + number[0:3] + ") " + number[3:6] + "-" + number[6:8] + "-" + number[8:10]
+	}
+	return number
+}

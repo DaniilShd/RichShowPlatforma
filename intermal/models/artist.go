@@ -9,6 +9,8 @@ type Artist struct {
 	ShoeSize     int    `db:"shoe_size"`
 	ClothingSize int    `db:"clothing_size"`
 	Telegram     string `db:"telegram_artist"`
-	PhoneNumber  int    `db:"phone_number"`
+	PhoneNumber  string `db:"phone_number"`
 	Photo        string `db:"photo_artist"`
+	Description  string
+	VK           string
 }

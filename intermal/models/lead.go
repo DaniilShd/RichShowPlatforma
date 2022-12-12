@@ -39,6 +39,7 @@ type LeadHero struct {
 	ArtistID        int
 	Description     string
 	HeroID          int
+	HeroName        string
 	ArtistFirstName string
 	ArtistLastName  string
 }

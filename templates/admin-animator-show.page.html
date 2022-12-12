@@ -1,0 +1,98 @@
+{{template "admin" .}}
+
+{{define "css"}}
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "page-title"}}
+Карточка аниматора
+{{end}}
+
+{{define "content"}}
+
+<!-- Add new master-class button -->
+
+<!-- <div class="row justify-content-end"> -->
+
+<div class="clearfix"></div>
+    <div class="col-md-12">
+        
+        {{$animator := index .Data "animator"}}
+
+
+        <div class="container mb-3">
+            <div class="row ">
+                <div class="col-6">
+                    <img src="/static/img/animators/{{$animator.Photo}}" alt="Фото аниматора" width="100%" >
+                </div>
+                <div class="col-6">
+                  <ul>
+                    <li>
+                        Имя: {{$animator.FirstName}}
+                    </li>
+                    <li>
+                        Фамилия: {{$animator.LastName}}
+                    </li>
+                    <li>
+                        Номер телефона: {{$animator.PhoneNumber}}
+                    </li>
+                    <li>
+                        Пол: {{if eq $animator.Gender 1}}мужской{{else}}женский{{end}}
+                    </li>
+                    <li>
+                        Рост: {{$animator.Growth}}
+                    </li>
+                    <li>
+                        Размер обуви: {{$animator.ShoeSize}}
+                    </li>
+                    <li>
+                        Размер одежды: {{$animator.ClothingSize}}
+                    </li>
+                    <li>
+                        Телеграм: <a href="{{$animator.Telegram}}">{{$animator.Telegram}}</a>
+                    </li>
+                    <li>
+                        Вконтакте: <a href="{{$animator.VK}}">{{$animator.VK}}</a>
+                    </li>
+                    
+                  </ul>  
+                  <div class="container mb-3" >
+                    <a href="/admin/animator-change/{{$animator.ID}}" class="btn btn-primary">Редактировать</a>
+                    <button onclick="deleteChecklist({{$animator.ID}})" type="button" class="btn btn-danger">Удалить</button>
+                    <a href="/admin/animators" class="btn btn-warning">Назад</a>
+                </div>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+
+    
+        
+
+    </div>
+{{end}}
+
+{{define "js"}}
+
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script>
+ 
+    
+    function deleteChecklist(id) {
+        attention.custom({
+            icon: 'warning',
+            msg: 'Вы уверены?',
+            callback: function(result) {
+                if (result !== false) {
+                    window.location.href = "/admin/animator-delete/" + id;
+                }
+            }
+        })
+    }
+</script>
+
+{{end}}
+
+

@@ -1,0 +1,89 @@
+{{template "admin" .}}
+
+{{define "css"}}
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "page-title"}}
+Карточка ассистента
+{{end}}
+
+{{define "content"}}
+
+<!-- Add new master-class button -->
+
+<!-- <div class="row justify-content-end"> -->
+
+<div class="clearfix"></div>
+    <div class="col-md-12">
+        
+        {{$assistant := index .Data "assistant"}}
+
+
+        <div class="container mb-3">
+            <div class="row ">
+                <div class="col-6">
+                    <img src="/static/img/assistants/{{$assistant.Photo}}" alt="Фото аниматора" width="100%" >
+                </div>
+                <div class="col-6">
+                  <ul>
+                    <li>
+                        Имя: {{$assistant.FirstName}}
+                    </li>
+                    <li>
+                        Фамилия: {{$assistant.LastName}}
+                    </li>
+                    <li>
+                        Номер телефона: {{$assistant.PhoneNumber}}
+                    </li>
+                    <li>
+                        Пол: {{if eq $assistant.Gender 1}}мужской{{else}}женский{{end}}
+                    </li>
+                    <li>
+                        Телеграм: <a href="{{$assistant.Telegram}}">{{$assistant.Telegram}}</a>
+                    </li>
+                    <li>
+                        Вконтакте: <a href="{{$assistant.VK}}">{{$assistant.VK}}</a>
+                    </li>
+                    
+                  </ul>  
+                  <div class="container mb-3" >
+                    <a href="/admin/assistant-change/{{$assistant.ID}}" class="btn btn-primary">Редактировать</a>
+                    <button onclick="deleteItem({{$assistant.ID}})" type="button" class="btn btn-danger">Удалить</button>
+                    <a href="/admin/assistants" class="btn btn-warning">Назад</a>
+                </div>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+
+    
+        
+
+    </div>
+{{end}}
+
+{{define "js"}}
+
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script>
+ 
+    
+    function deleteItem(id) {
+        attention.custom({
+            icon: 'warning',
+            msg: 'Вы уверены?',
+            callback: function(result) {
+                if (result !== false) {
+                    window.location.href = "/admin/assistant-delete/" + id;
+                }
+            }
+        })
+    }
+</script>
+
+{{end}}
+
+
