@@ -1,5 +1,12 @@
 package models
 
+import "time"
+
+type Program struct {
+	CheckListID int
+	Description string
+}
+
 type MasterClass struct {
 	ID          int
 	Name        string
@@ -48,8 +55,7 @@ type Child struct {
 	ID             int
 	Name           string
 	Gender         int
-	Artist         Artist
-	DateOfBirthDay string
+	DateOfBirthDay time.Time
 	Age            int
 }
 
@@ -62,17 +68,17 @@ type Client struct {
 }
 
 type Lead struct {
-	ID                   int    `db:"id_lead"`
-	AmountOfChildren     int    `db:"amount_of_children"`
-	AverageAgeOfChildren int    `db:"average_age_of_children"`
-	Address              string `db:"address"`
-	Date                 string `db:"date"`
-	Time                 string `db:"time"`
-	ActiveLead           bool   `db:"active_lead"`
-	CheckArtists         bool   `db:"check_artists"`
-	Confirmed            bool   `db:"confirmed"`
-	CheckAssistants      bool   `db:"check_assistants"`
-	Description          string `db:"description"`
+	ID                   int       `db:"id_lead"`
+	AmountOfChildren     int       `db:"amount_of_children"`
+	AverageAgeOfChildren int       `db:"average_age_of_children"`
+	Address              string    `db:"address"`
+	Date                 time.Time `db:"date"`
+	Time                 time.Time `db:"time"`
+	ActiveLead           bool      `db:"active_lead"`
+	CheckArtists         bool      `db:"check_artists"`
+	Confirmed            bool      `db:"confirmed"`
+	CheckAssistants      bool      `db:"check_assistants"`
+	Description          string    `db:"description"`
 	Duration             int
 	MasterClasses        []MasterClass
 	Animations           []Animation

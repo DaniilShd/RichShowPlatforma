@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/DaniilShd/RichShowPlatforma/intermal/models"
@@ -13,7 +14,7 @@ func (m *postgresDBRepo) GetAllHeroes() (*[]models.Hero, error) {
 	defer cancel()
 
 	querySelectAll := `
-	select  id_hero, name_hero, id_gender_hero, clothing_size_min, clothing_size_max, photo
+	select  id_hero, name_hero, id_gender_hero, clothing_size_min, clothing_size_max, photo, description
 	from heroes
 	`
 
@@ -31,7 +32,9 @@ func (m *postgresDBRepo) GetAllHeroes() (*[]models.Hero, error) {
 			&hero.Gender,
 			&hero.ClothingSizeMin,
 			&hero.ClothingSizeMax,
-			&hero.Photo)
+			&hero.Photo,
+			&hero.Description,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -51,9 +54,9 @@ func (m *postgresDBRepo) GetHeroByID(id int) (*models.Hero, error) {
 	defer cancel()
 
 	querySelect := `
-	select  id_hero, name_hero, id_gender_hero, clothing_size_min, clothing_size_max, photo
+	select  id_hero, name_hero, id_gender_hero, clothing_size_min, clothing_size_max, photo, description
 	from heroes
-	where id = $1
+	where id_hero = $1
 	`
 
 	var hero models.Hero
@@ -65,7 +68,9 @@ func (m *postgresDBRepo) GetHeroByID(id int) (*models.Hero, error) {
 		&hero.Gender,
 		&hero.ClothingSizeMin,
 		&hero.ClothingSizeMax,
-		&hero.Photo)
+		&hero.Photo,
+		&hero.Description,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +88,8 @@ func (m *postgresDBRepo) InsertHero(hero *models.Hero) error {
 
 	queryInsert := `
 	insert into heroes 
-	(name_hero, id_gender_hero, clothing_size_min, clothing_size_max, photo)
-	VALUES ($1, $2, $3, $4, $5)
+	(name_hero, id_gender_hero, clothing_size_min, clothing_size_max, photo, description)
+	VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
 	_, err := m.DB.ExecContext(ctx, queryInsert,
@@ -93,6 +98,7 @@ func (m *postgresDBRepo) InsertHero(hero *models.Hero) error {
 		&hero.ClothingSizeMin,
 		&hero.ClothingSizeMax,
 		&hero.Photo,
+		&hero.Description,
 	)
 	if err != nil {
 		return err
@@ -104,9 +110,29 @@ func (m *postgresDBRepo) UpdateHero(hero *models.Hero) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
+	querySelect := `
+	select photo  
+	from heroes
+	where id_hero = $1
+	`
+	var photo string
+	row := m.DB.QueryRowContext(ctx, querySelect, hero.ID)
+	row.Scan(&photo)
+
+	if hero.Photo != "" {
+
+		filePath := "static/img/heroes/" + photo
+		err := os.Remove(filePath)
+		if err != nil {
+			return err
+		}
+
+	} else {
+		hero.Photo = photo
+	}
+
 	queryUpdate := `update heroes 
-	set name_hero=$1, id_gender_hero=$2, clothing_size_min=$3, clothing_size_max=$4, photo=$5
-	VALUES ($1, $2, $3, $4, $5)
+	set name_hero=$1, id_gender_hero=$2, clothing_size_min=$3, clothing_size_max=$4, photo=$5, description=$6
 	where id_hero = $7
 	`
 
@@ -116,6 +142,7 @@ func (m *postgresDBRepo) UpdateHero(hero *models.Hero) error {
 		&hero.ClothingSizeMin,
 		&hero.ClothingSizeMax,
 		&hero.Photo,
+		&hero.Description,
 		&hero.ID,
 	)
 	if err != nil {
@@ -127,6 +154,25 @@ func (m *postgresDBRepo) UpdateHero(hero *models.Hero) error {
 func (m *postgresDBRepo) DeleteHeroByID(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
+
+	querySelect := `
+	select photo  
+	from heroes
+	where id_hero = $1
+	`
+
+	var photo string
+	row := m.DB.QueryRowContext(ctx, querySelect, id)
+	row.Scan(&photo)
+
+	if photo != "" {
+		filePath := "static/img/heroes/" + photo
+		fmt.Println(filePath)
+		err := os.Remove(filePath)
+		if err != nil {
+			return err
+		}
+	}
 
 	deleteItem := `
 	delete

@@ -22,7 +22,13 @@ type DatabaseRepo interface {
 
 	//Manager
 	InsertLead(lead *models.Lead) error
-	// GetAllLeads() ([]models.Lead, error)
+	GetAllRawLeads() ([]models.Lead, error)
+	GetAllConfirmedLeads() ([]models.Lead, error)
+	GetAllArchiveLeads() ([]models.Lead, error)
+	GetLeadByID(idLead int) (*models.Lead, error)
+	SetConfirmedLeadByID(idLead int) error
+	DeleteConfirmedLeadByID(idLead int) error
+	DeleteLeadByID(idLead int) error
 
 	//Assistant
 	GetAllAssistants() (*[]models.Assistant, error)

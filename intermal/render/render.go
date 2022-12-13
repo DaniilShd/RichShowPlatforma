@@ -17,6 +17,7 @@ import (
 
 var functions = template.FuncMap{
 	"humanDate": HumanDate,
+	"humanTime": HumanTime,
 }
 
 var pathToTemplate = "./templates"
@@ -30,7 +31,11 @@ func NewRenderer(a *config.AppConfig) {
 
 // returns time in YYYY-MM-DD format (10 Nov 09 23:00 UTC)
 func HumanDate(t time.Time) string {
-	return t.Format(time.RFC822)
+	return t.Format("02-01-2006")
+}
+
+func HumanTime(t time.Time) string {
+	return t.Format("15:04")
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {

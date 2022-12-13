@@ -28,7 +28,7 @@
 
     <div class="col-md-12">
       
-        <form action="/admin/manager/lead-new" method="post" class="" novalidate enctype="multipart/form-data"> 
+        <form action="/admin/lead-new" method="post" class="" novalidate enctype="multipart/form-data"> 
 
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
@@ -92,14 +92,15 @@
                   {{with .Form.Errors.Get "date"}}
                   <label for="" class="text-danger">{{.}}</label>
                   {{end}}
-                  <input type="text" value="{{$lead.Date}}" class="form-control {{with .Form.Errors.Get "date"}} is-invalid {{end}}" id="date" name="date" required>
+         
+                  <input type="text" value="{{humanDate $lead.Date}}" class="form-control {{with .Form.Errors.Get "date"}} is-invalid {{end}}" id="date" name="date" required>
             </div>
             <div class="col-3"> 
               <label for="time" class="form-label">Время проведения праздника</label>
               {{with .Form.Errors.Get "time"}}
               <label for="" class="text-danger">{{.}}</label>
               {{end}}
-              <input type="time" value="{{$lead.Time}}" class="form-control {{with .Form.Errors.Get "time"}} is-invalid {{end}}" id="time" name="time" required>
+              <input type="time" value="{{humanTime $lead.Time}}" class="form-control {{with .Form.Errors.Get "time"}} is-invalid {{end}}" id="time" name="time" required>
         </div>
             </div>
             </div>
@@ -120,7 +121,7 @@
                 {{with .Form.Errors.Get "date_of_birthday_child"}}
                 <label for="" class="text-danger">{{.}}</label>
                 {{end}}
-                <input type="text" value="{{$lead.Child.DateOfBirthDay}}" class="form-control {{with .Form.Errors.Get "date_of_birthday_child"}} is-invalid {{end}}" id="date_of_birthday_child" name="date_of_birthday_child" required>
+                <input type="text" value="{{humanDate $lead.Child.DateOfBirthDay}}" class="form-control {{with .Form.Errors.Get "date_of_birthday_child"}} is-invalid {{end}}" id="date_of_birthday_child" name="date_of_birthday_child" required>
               </div>
             </div>
           </div>
@@ -201,7 +202,7 @@
 
 
 
-
+<h4>Шоу-программы</h4>
 
 <!-- Shows start -->
               <a type="button" onclick="add_program()" class="btn btn-info">Добавить пункт</a>
@@ -240,7 +241,7 @@
                   <div class="row">
                     <div class="col-5">
                       <select name="shows[]" class="form-select" aria-label="Default item">
-                        <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+                        <option selected value="{{if ne .ID 0}}{{.ID}}{{end}}">{{.Name}} ({{.Duration}} мин.)</option>
                         {{range $shows}}
                         <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
                         {{end}}
@@ -257,8 +258,8 @@
             </div>
 <!-- Shows end -->
 
-
-
+<hr>
+<h4>Мастер-классы</h4>
 
 <!-- Master-class start -->
 <a type="button" onclick="add_master_class()" class="btn btn-info">Добавить пункт</a>
@@ -297,7 +298,7 @@
     <div class="row">
       <div class="col-5">
         <select name="master_class[]" class="form-select" aria-label="Default item">
-          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          <option selected value="{{if ne .ID 0}}{{.ID}}{{end}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{range $masterClass}}
           <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{end}}
@@ -313,8 +314,8 @@
   {{end}}
 </div>
 <!-- Master-class end -->
-
-
+<hr>
+<h4>Анимация</h4>
 <!-- Animation start -->
 <a type="button" onclick="add_animation()" class="btn btn-info">Добавить пункт</a>
 <a type="button" onclick="delete_animation()" class="btn btn-danger">Удалить пункт</a>
@@ -352,7 +353,7 @@
     <div class="row">
       <div class="col-5">
         <select name="animation[]" class="form-select" aria-label="Default item">
-          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          <option selected value="{{if ne .ID 0}}{{.ID}}{{end}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{range $animation}}
           <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{end}}
@@ -369,7 +370,8 @@
 </div>
 <!-- Animation end -->
 
-
+<hr>
+<h4>Вечеринки и квесты</h4>
 
 
 <!-- Party and quest start -->
@@ -409,7 +411,7 @@
     <div class="row">
       <div class="col-5">
         <select name="party_and_quest[]" class="form-select" aria-label="Default item">
-          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          <option selected value="{{if ne .ID 0}}{{.ID}}{{end}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{range $partyAndQuest}}
           <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{end}}
@@ -425,7 +427,8 @@
   {{end}}
 </div>
 <!-- Party and quest end -->
-
+<hr>
+<h4>Другое</h4>
 
 
 
@@ -468,7 +471,7 @@
     <div class="row">
       <div class="col-5">
         <select name="other[]" class="form-select" aria-label="Default item">
-          <option selected value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
+          <option selected value="{{if ne .ID 0}}{{.ID}}{{end}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{range $other}}
           <option value="{{.ID}}">{{.Name}} ({{.Duration}} мин.)</option>
           {{end}}
@@ -487,8 +490,8 @@
 
 
 
-
-
+<hr>
+<h4>Герои</h4>
 
 <!-- Hero start -->
 <a type="button" onclick="add_hero()" class="btn btn-info">Добавить пункт</a>
@@ -532,7 +535,7 @@
     <div class="row">
       <div class="col-5">
         <select name="id_hero[]" class="form-select" aria-label="Default item">
-          <option selected value="{{.ID}}">{{.HeroName}}</option>
+          <option selected value="{{if ne .HeroID 0}}{{.HeroID}}{{end}}">{{.HeroName}}</option>
           {{range $heroes}}
           <option value="{{.ID}}">{{.Name}}</option>
           {{end}}
@@ -540,7 +543,7 @@
       </div>
       <div class="col-5">
         <select name="id_artist[]" class="form-select" aria-label="Default item">
-          <option selected value="{{.ArtistID}}">{{.ArtistFirstName}} {{.ArtistLastName}}</option>
+          <option selected value="{{if ne .ArtistID 0}}{{.ArtistID}}{{end}}">{{.ArtistFirstName}} {{.ArtistLastName}}</option>
           {{range $artists}}
           <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
           {{end}}
@@ -557,7 +560,8 @@
 <!-- Hero end -->
 
 
-
+<hr>
+<h4>Ассистенты</h4>
 
 
 
@@ -584,6 +588,21 @@
     </div>
     
   </div>
+  {{range $lead.Assistants}}
+  <div id="many_assistant" class="item-assistant" >
+    <div class="row">
+      <div class="col-5">
+        <select name="id_assistant[]" class="form-select" aria-label="Default item">
+          <option selected value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
+          {{range $assistants}}
+          <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
+          {{end}}
+        </select>
+      </div>
+    </div>
+    
+  </div>
+  {{end}}
 
 </div>
 <!-- Assistant end -->
@@ -594,7 +613,7 @@
               
             
             <button type="submit" class="btn btn-primary">Сохранить</button>
-           <a href="/admin/leads" class="btn btn-warning">Отмена</a>
+           <a href="/admin/rawleads" class="btn btn-warning">Отмена</a>
           </form>
     </div>
 {{end}}

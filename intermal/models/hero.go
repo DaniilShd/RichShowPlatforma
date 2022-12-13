@@ -7,4 +7,5 @@ type Hero struct {
 	Photo           string `db:"photo_assistant"`
 	ClothingSizeMin int    `db:"clothing_size_min"`
 	ClothingSizeMax int    `db:"clothing_size_max"`
+	Description     string
 }

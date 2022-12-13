@@ -58,9 +58,19 @@ func routes() *chi.Mux {
 		mux.Get("/delete-store/{id}", handlers.Repo.DeleteStoreItem)
 
 		//Manager
+		//All leads
+		mux.Get("/rawleads", handlers.Repo.AllRawLead)
+		mux.Get("/leads-confirmed", handlers.Repo.AllConfirmedLead)
+		mux.Get("/leads-archive", handlers.Repo.AllArchiveLead)
+		mux.Get("/show-lead/{id}", handlers.Repo.ShowLead)
 		// mux.Get("/manager", handlers.Repo.StoreItemAll)
-		mux.Get("/manager/lead-new", handlers.Repo.NewLead)
-		mux.Post("/manager/lead-new", handlers.Repo.NewPostLead)
+		mux.Get("/lead-new", handlers.Repo.NewLead)
+		mux.Post("/lead-new", handlers.Repo.NewPostLead)
+		//Set and delete confirmed lead
+		mux.Get("/lead-confirmed/{id}", handlers.Repo.SetConfirmedLead)
+		mux.Get("/lead-delete-confirmed/{id}", handlers.Repo.DeleteConfirmedLead)
+		//Delete lead
+		mux.Get("/lead-delete/{id}", handlers.Repo.DeleteLead)
 
 		//Leads calendar------------------------------------------------------------------------------------------
 		// mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)
@@ -92,6 +102,19 @@ func routes() *chi.Mux {
 		//Show change Assistant
 		mux.Get("/assistant-change/{id}", handlers.Repo.ChangeAssistant)
 		mux.Post("/assistant-change/{id}", handlers.Repo.ChangePostAssistant)
+
+		//Heroes
+		mux.Get("/heroes", handlers.Repo.HeroesAll)
+		//New Assistants
+		mux.Get("/hero-new", handlers.Repo.NewHero)
+		mux.Post("/hero-new", handlers.Repo.NewPostHero)
+		//Show and delete
+		mux.Get("/hero-delete/{id}", handlers.Repo.DeleteHero)
+		//Show Assistant
+		mux.Get("/hero/{id}", handlers.Repo.ShowHero)
+		//Show change Assistant
+		mux.Get("/hero-change/{id}", handlers.Repo.ChangeHero)
+		mux.Post("/hero-change/{id}", handlers.Repo.ChangePostHero)
 
 	})
 
