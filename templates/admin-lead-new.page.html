@@ -80,12 +80,13 @@
               
                   </div>
                   <div class="col-3">
-                    <label for="age" class="form-label">Возраст ребенка</label>
-                {{with .Form.Errors.Get "age"}}
-                <label for="" class="text-danger">{{.}}</label>
-                {{end}}
-                <input type="text" value="{{if ne $lead.Child.Age 0}}{{$lead.Child.Age}}{{end}}" class="form-control {{with .Form.Errors.Get "age"}} is-invalid {{end}}" id="age" name="age" required>
-              
+                   
+                    <label for="date_of_birthday_child" class="form-label foo">Дата дня рождения ребенка</label>
+                    {{with .Form.Errors.Get "date_of_birthday_child"}}
+                    <label for="" class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input type="text" value="{{humanDate $lead.Child.DateOfBirthDay}}" class="form-control {{with .Form.Errors.Get "date_of_birthday_child"}} is-invalid {{end}}" id="date_of_birthday_child" name="date_of_birthday_child" required>
+
                   </div>
                 <div class="col-3"> 
                   <label for="date" class="form-label">Дата проведения праздника</label>
@@ -117,11 +118,9 @@
     
               </div>
               <div class="col-6">
-                <label for="date_of_birthday_child" class="form-label foo">Дата дня рождения ребенка</label>
-                {{with .Form.Errors.Get "date_of_birthday_child"}}
-                <label for="" class="text-danger">{{.}}</label>
-                {{end}}
-                <input type="text" value="{{humanDate $lead.Child.DateOfBirthDay}}" class="form-control {{with .Form.Errors.Get "date_of_birthday_child"}} is-invalid {{end}}" id="date_of_birthday_child" name="date_of_birthday_child" required>
+              
+
+
               </div>
             </div>
           </div>

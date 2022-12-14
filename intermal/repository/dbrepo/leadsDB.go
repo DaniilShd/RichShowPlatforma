@@ -217,15 +217,14 @@ func (m *postgresDBRepo) insertChild(ctx context.Context, child *models.Child, i
 	//если такой ребенок уже есть в базе, записывать его снова не нужно, возвращаем id этого ребенка
 
 	queryInsertChild := `insert into client_child
-		(name_child, date_of_birthday_child, id_client, age, id_gender_child)
-		VALUES ($1, $2, $3, $4, $5)
+		(name_child, date_of_birthday_child, id_client, id_gender_child)
+		VALUES ($1, $2, $3, $4)
 		Returning id_client_child
 		`
 	if err := m.DB.QueryRowContext(ctx, queryInsertChild,
 		child.Name,
 		child.DateOfBirthDay,
 		idClient,
-		child.Age,
 		child.Gender).Scan(&idChild); err != nil {
 		return 0, err
 	}
@@ -528,7 +527,6 @@ func (m *postgresDBRepo) GetLeadByID(idLead int) (*models.Lead, error) {
 
 	child, err := m.getChildByID(ctx, lead.Child.ID)
 	lead.Child.Name = child.Name
-	lead.Child.Age = child.Age
 	lead.Child.DateOfBirthDay = child.DateOfBirthDay
 	lead.Child.Gender = child.Gender
 
@@ -580,7 +578,7 @@ func (m *postgresDBRepo) getClientByID(ctx context.Context, idClient int) (*mode
 
 func (m *postgresDBRepo) getChildByID(ctx context.Context, idChild int) (*models.Child, error) {
 	queryChild := `
-	select name_child, date_of_birthday_child, id_gender_child, age
+	select name_child, date_of_birthday_child, id_gender_child
 	from client_child
 	where id_client_child = $1
 	`
@@ -590,8 +588,7 @@ func (m *postgresDBRepo) getChildByID(ctx context.Context, idChild int) (*models
 	err := m.DB.QueryRowContext(ctx, queryChild, idChild).Scan(
 		&child.Name,
 		&child.DateOfBirthDay,
-		&child.Gender,
-		&child.Age)
+		&child.Gender)
 	if err != nil {
 		return nil, err
 	}
@@ -946,14 +943,13 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 func (m *postgresDBRepo) updateChild(ctx context.Context, child *models.Child) error {
 	queryUpdateChild := `
 	update client_child
-	set name_child=$1, date_of_birthday_child=$2, id_gender_child=$3, age=$4
-	where id_client_child=$5
+	set name_child=$1, date_of_birthday_child=$2, id_gender_child=$3
+	where id_client_child=$4
 	`
 	_, err := m.DB.ExecContext(ctx, queryUpdateChild,
 		child.Name,
 		child.DateOfBirthDay,
 		child.Gender,
-		child.Age,
 		child.ID)
 	if err != nil {
 		return err

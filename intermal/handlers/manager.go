@@ -120,10 +120,6 @@ func (m *Repository) NewPostLead(w http.ResponseWriter, r *http.Request) {
 
 	lead.Client.Telegram = r.Form.Get("telegram_client")
 	lead.Child.Name = r.Form.Get("name_child")
-	lead.Child.Age, err = strconv.Atoi(r.Form.Get("age"))
-	if err != nil {
-		form.Errors.Add("age", "Необходимо ввести число!")
-	}
 
 	dateForm := r.Form.Get("date")
 
@@ -544,6 +540,8 @@ func (m *Repository) ShowLead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	lead.Child.Age = int(time.Now().Year()) - int(lead.Child.DateOfBirthDay.Year())
+
 	data := make(map[string]interface{})
 	data["lead"] = lead
 
@@ -800,10 +798,6 @@ func (m *Repository) ChangePostLead(w http.ResponseWriter, r *http.Request) {
 
 	lead.Client.Telegram = r.Form.Get("telegram_client")
 	lead.Child.Name = r.Form.Get("name_child")
-	lead.Child.Age, err = strconv.Atoi(r.Form.Get("age"))
-	if err != nil {
-		form.Errors.Add("age", "Необходимо ввести число!")
-	}
 
 	dateForm := r.Form.Get("date")
 
