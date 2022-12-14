@@ -3,7 +3,7 @@
 
 
 {{define "page-title"}}
-<h4>Новый Лид</h4>
+<h4>Редактирование лида</h4>
 {{end}}
 
 {{define "css"}}
@@ -21,16 +21,19 @@
 {{define "content"}}
 
 {{$lead := index .Data "lead"}}
-
-
+{{$type := index .StringMap "type"}}
+{{$active := index .StringMap "active"}}
 
 
 
     <div class="col-md-12">
       
-        <form action="/admin/lead-new" method="post" class="" novalidate enctype="multipart/form-data"> 
+        <form action="/admin/lead-change/{{$type}}/{{$active}}/{{$lead.ID}}" method="post" class="" novalidate enctype="multipart/form-data"> 
 
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input type="hidden" name="id_client" value="{{$lead.Client.ID}}">
+            <input type="hidden" name="id_child" value="{{$lead.Child.ID}}">
+            <input type="hidden" name="id_lead" value="{{$lead.ID}}">
 
 
             <div class="mb-3">
@@ -613,7 +616,7 @@
               
             
             <button type="submit" class="btn btn-primary">Сохранить</button>
-           <a href="/admin/rawleads" class="btn btn-warning">Отмена</a>
+           <a href="/admin/show-lead/{{$type}}/{{$active}}/{{$lead.ID}}" class="btn btn-warning">Отмена</a>
           </form>
     </div>
 {{end}}

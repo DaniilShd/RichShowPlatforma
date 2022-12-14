@@ -29,6 +29,7 @@ type DatabaseRepo interface {
 	SetConfirmedLeadByID(idLead int) error
 	DeleteConfirmedLeadByID(idLead int) error
 	DeleteLeadByID(idLead int) error
+	UpdateLead(lead *models.Lead) error
 
 	//Assistant
 	GetAllAssistants() (*[]models.Assistant, error)

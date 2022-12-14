@@ -59,18 +59,21 @@ func routes() *chi.Mux {
 
 		//Manager
 		//All leads
-		mux.Get("/rawleads", handlers.Repo.AllRawLead)
+		mux.Get("/leads-raw", handlers.Repo.AllRawLead)
 		mux.Get("/leads-confirmed", handlers.Repo.AllConfirmedLead)
 		mux.Get("/leads-archive", handlers.Repo.AllArchiveLead)
-		mux.Get("/show-lead/{id}", handlers.Repo.ShowLead)
+		mux.Get("/show-lead/{src}/{active}/{id}", handlers.Repo.ShowLead)
+		//Change lead
+		mux.Get("/lead-change/{src}/{active}/{id}", handlers.Repo.ChangeLead)
+		mux.Post("/lead-change/{src}/{active}/{id}", handlers.Repo.ChangePostLead)
 		// mux.Get("/manager", handlers.Repo.StoreItemAll)
 		mux.Get("/lead-new", handlers.Repo.NewLead)
 		mux.Post("/lead-new", handlers.Repo.NewPostLead)
 		//Set and delete confirmed lead
-		mux.Get("/lead-confirmed/{id}", handlers.Repo.SetConfirmedLead)
-		mux.Get("/lead-delete-confirmed/{id}", handlers.Repo.DeleteConfirmedLead)
+		mux.Get("/lead-confirmed/{src}/{active}/{id}", handlers.Repo.SetConfirmedLead)
+		mux.Get("/lead-delete-confirmed/{src}/{active}/{id}", handlers.Repo.DeleteConfirmedLead)
 		//Delete lead
-		mux.Get("/lead-delete/{id}", handlers.Repo.DeleteLead)
+		mux.Get("/lead-delete/{src}/{id}", handlers.Repo.DeleteLead)
 
 		//Leads calendar------------------------------------------------------------------------------------------
 		// mux.Get("/leads-calendar", handlers.Repo.LeadsCalendar)

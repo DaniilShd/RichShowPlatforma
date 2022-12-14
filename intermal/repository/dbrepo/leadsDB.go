@@ -26,8 +26,8 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 	fmt.Println(idChild)
 
 	queryInsertLead := `insert into leads
-	(id_client, amount_of_children, average_age_of_children, address, date, time, id_client_child, description)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	(id_client, amount_of_children, average_age_of_children, address, date, time, id_client_child, description, duration)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	returning id_lead
 	`
 
@@ -40,7 +40,8 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 		lead.Date,
 		lead.Time,
 		idChild,
-		lead.Description).Scan(&idLead); err != nil {
+		lead.Description,
+		lead.Duration).Scan(&idLead); err != nil {
 
 		return err
 	}
@@ -308,7 +309,7 @@ func (m *postgresDBRepo) GetAllRawLeads() ([]models.Lead, error) {
 	select id_lead, id_client, amount_of_children, average_age_of_children, 
 	address, date, check_artists, confirmed, check_assistants, id_client_child, time, description, duration
 	from leads
-	where (date + time)<(current_time+ current_date)  AND (check_artists<>true OR confirmed<>true OR check_assistants<>true)
+	where (date + time)>(current_time+current_date)  AND (check_artists<>true OR confirmed<>true OR check_assistants<>true)
 	`
 
 	rows, err := m.DB.QueryContext(ctx, queryRawLeads)
@@ -368,7 +369,7 @@ func (m *postgresDBRepo) GetAllConfirmedLeads() ([]models.Lead, error) {
 	select id_lead, id_client, amount_of_children, average_age_of_children, 
 	address, date, check_artists, confirmed, check_assistants, id_client_child, time, description, duration
 	from leads
-	where (date + time)<(current_time+ current_date) AND (check_artists=true AND confirmed=true AND check_assistants=true)
+	where (date + time)>(current_time+ current_date) AND (check_artists=true AND confirmed=true AND check_assistants=true)
 	`
 
 	rows, err := m.DB.QueryContext(ctx, queryLeads)
@@ -428,7 +429,7 @@ func (m *postgresDBRepo) GetAllArchiveLeads() ([]models.Lead, error) {
 	select id_lead, id_client, amount_of_children, average_age_of_children, 
 	address, date, check_artists, confirmed, check_assistants, id_client_child, time, description, duration
 	from leads
-	where (date + time)>(current_time+ current_date)
+	where (date + time)<(current_time+ current_date)
 	`
 
 	rows, err := m.DB.QueryContext(ctx, queryLeads)
@@ -491,7 +492,7 @@ func (m *postgresDBRepo) GetLeadByID(idLead int) (*models.Lead, error) {
 	where id_lead=$1
 	`
 	var lead models.Lead
-
+	var timeDate string
 	err := m.DB.QueryRowContext(ctx, queryLeadID, idLead).Scan(&lead.ID,
 		&lead.Client.ID,
 		&lead.AmountOfChildren,
@@ -503,10 +504,15 @@ func (m *postgresDBRepo) GetLeadByID(idLead int) (*models.Lead, error) {
 		&lead.Confirmed,
 		&lead.CheckAssistants,
 		&lead.Child.ID,
-		&lead.Time,
+		&timeDate,
 		&lead.Description,
 		&lead.Duration,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	lead.Time, err = time.Parse("15:04", timeDate[:5])
 	if err != nil {
 		return nil, err
 	}
@@ -856,3 +862,175 @@ func (m *postgresDBRepo) DeleteLeadByID(idLead int) error {
 	return nil
 
 }
+
+// Update lead start
+func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	fmt.Println(1223)
+
+	err := m.updateClient(ctx, &lead.Client)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(1223)
+	err = m.updateChild(ctx, &lead.Child)
+	if err != nil {
+		return err
+	}
+
+	queryUpdateLead := `update leads
+	set amount_of_children=$1, average_age_of_children=$2, address=$3, date=$4, time=$5, description=$6, duration=$7
+	where id_lead=$8
+	`
+	fmt.Println(1223)
+	var idLead int
+	_, err = m.DB.ExecContext(ctx, queryUpdateLead,
+		lead.AmountOfChildren,
+		lead.AverageAgeOfChildren,
+		lead.Address,
+		lead.Date,
+		lead.Time,
+		lead.Description,
+		lead.Duration,
+		lead.ID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(1223)
+
+	err = m.updatePrograms(ctx, lead)
+	if err != nil {
+		return err
+	}
+	err = m.updateHeroes(ctx, lead)
+	if err != nil {
+		return err
+	}
+	err = m.updateAssistants(ctx, lead)
+	if err != nil {
+		return err
+	}
+
+	checkArtist, err := m.checkArtist(ctx, idLead)
+	if err != nil {
+		return err
+	}
+	queryCheckArtist := `update leads
+	set check_artists=$1
+	where id_lead=$2
+	`
+	_, err = m.DB.ExecContext(ctx, queryCheckArtist, checkArtist, idLead)
+	if err != nil {
+		return err
+	}
+
+	checkAssistant, err := m.checkAssistant(ctx, idLead)
+	if err != nil {
+		return err
+	}
+	queryCheckAssistant := `update leads
+	set check_assistants=$1
+	where id_lead=$2
+	`
+	_, err = m.DB.ExecContext(ctx, queryCheckAssistant, checkAssistant, idLead)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) updateChild(ctx context.Context, child *models.Child) error {
+	queryUpdateChild := `
+	update client_child
+	set name_child=$1, date_of_birthday_child=$2, id_gender_child=$3, age=$4
+	where id_client_child=$5
+	`
+	_, err := m.DB.ExecContext(ctx, queryUpdateChild,
+		child.Name,
+		child.DateOfBirthDay,
+		child.Gender,
+		child.Age,
+		child.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) updateClient(ctx context.Context, client *models.Client) error {
+	queryUpdateChild := `
+	update clients
+	set first_name=$1, last_name=$2, phone_number=$3, telegram_client=$4
+	where id_client=$5
+	`
+	_, err := m.DB.ExecContext(ctx, queryUpdateChild,
+		client.FirstName,
+		client.LastName,
+		client.PhoneNumber,
+		client.Telegram,
+		client.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) updateAssistants(ctx context.Context, lead *models.Lead) error {
+	queryDelete := `
+	delete 
+	from lead_assistants
+	where id_lead=$1
+	`
+	_, err := m.DB.ExecContext(ctx, queryDelete, lead.ID)
+	if err != nil {
+		return err
+	}
+
+	err = m.insertAssistants(ctx, &lead.Assistants, lead.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) updateHeroes(ctx context.Context, lead *models.Lead) error {
+	queryDelete := `
+	delete 
+	from lead_heroes
+	where id_lead=$1
+	`
+	_, err := m.DB.ExecContext(ctx, queryDelete, lead.ID)
+	if err != nil {
+		return err
+	}
+
+	err = m.insertHeroes(ctx, &lead.Heroes, lead.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *postgresDBRepo) updatePrograms(ctx context.Context, lead *models.Lead) error {
+	queryDelete := `
+	delete 
+	from lead_programs
+	where id_lead=$1
+	`
+	_, err := m.DB.ExecContext(ctx, queryDelete, lead.ID)
+	if err != nil {
+		return err
+	}
+
+	err = m.insertPrograms(ctx, lead, lead.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Update lead end

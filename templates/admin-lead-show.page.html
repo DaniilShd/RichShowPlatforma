@@ -21,7 +21,8 @@
 {{define "content"}}
 
 {{$lead := index .Data "lead"}}
-
+{{$active := index .StringMap "active"}}
+{{$type := index .StringMap "type"}}
 
 
 
@@ -57,11 +58,11 @@
                   </tr>
                   <tr>
                     <td>Возраст</td>
-                    <td>{{$lead.Child.Age}}</td>
+                    <td>{{$lead.Child.Age}} лет</td>
                 </tr>
                 <tr>
                   <td>Средний возраст детей</td>
-                  <td>{{$lead.AverageAgeOfChildren}}</td>
+                  <td>{{$lead.AverageAgeOfChildren}} лет</td>
               </tr>
               <tr>
                 <td>Среднее количество детей</td>
@@ -163,27 +164,26 @@
               </tbody>
           </table>
 
-
           <div class="container mb-3" >
-          {{if eq $lead.ActiveLead true}} 
-          <a href="/admin/lead-change/{{$lead.ID}}" class="btn btn-primary">Редактировать</a>
+          {{if eq $active "active"}} 
+          <a href="/admin/lead-change/{{$type}}/{{$active}}/{{$lead.ID}}" class="btn btn-primary">Редактировать</a>
             {{if eq $lead.Confirmed true}}
-          <button onclick="deleteConfirmedLead({{$lead.ID}})" type="button" class="btn btn-danger">Отменить подтверждение</button>
-          <a href="/admin/leads-confirmed" class="btn btn-warning">Назад</a>
+          <button onclick="deleteConfirmedLead({{$lead.ID}}, {{$type}}, {{$active}})" type="button" class="btn btn-danger">Отменить подтверждение</button>
+          <a href="/admin/leads-{{$type}}" class="btn btn-warning">Назад</a>
             {{else}}
-          <button onclick="setConfirmedLead({{$lead.ID}})" type="button" class="btn btn-success">Подтвердить</button>
-          <a href="/admin/rawleads" class="btn btn-warning">Назад</a>
+          <button onclick="setConfirmedLead({{$lead.ID}}, {{$type}}, {{$active}})" type="button" class="btn btn-success">Подтвердить</button>
+          <a href="/admin/leads-{{$type}}" class="btn btn-warning">Назад</a>
             {{end}}
           {{else}}
-          <a href="/admin/leads-archive" class="btn btn-warning">Назад</a>
+          <a href="/admin/leads-{{$type}}" class="btn btn-warning">Назад</a>
           {{end}}
         </div>
 
 
     
         <div class="container mb-3" >
-          {{if eq $lead.ActiveLead true}}
-          <button onclick="deleteLead({{$lead.ID}})" type="button" class="btn btn-danger">Удалить</button>
+          {{if eq $active "active"}}
+          <button onclick="deleteLead({{$lead.ID}}, {{$type}})" type="button" class="btn btn-danger">Удалить</button>
           {{end}}
           
       </div>
@@ -211,37 +211,37 @@
     <script>
 
     
- function setConfirmedLead(id) {
+ function setConfirmedLead(id, type, active) {
      attention.custom({
          icon: 'warning',
          msg: 'Вы уверены?',
          callback: function(result) {
              if (result !== false) {
-                 window.location.href = "/admin/lead-confirmed/" + id;
+                 window.location.href = "/admin/lead-confirmed/" + type+"/" + active+"/" + id;
              }
          }
      })
  }
 
- function deleteConfirmedLead(id) {
+ function deleteConfirmedLead(id, type, active) {
      attention.custom({
          icon: 'warning',
          msg: 'Вы уверены?',
          callback: function(result) {
              if (result !== false) {
-                 window.location.href = "/admin/lead-delete-confirmed/" + id;
+                 window.location.href = "/admin/lead-delete-confirmed/" + type+"/" + active+"/" + id;
              }
          }
      })
  }
 
- function deleteLead(id) {
+ function deleteLead(id, type) {
      attention.custom({
          icon: 'warning',
          msg: 'Вы уверены?',
          callback: function(result) {
              if (result !== false) {
-                 window.location.href = "/admin/lead-delete/" + id;
+                 window.location.href = "/admin/lead-delete/" + type+"/" + id;
              }
          }
      })

@@ -11,6 +11,8 @@
 {{define "content"}}
 {{$leads := index .Data "leads"}}
 {{$add := index .StringMap "add"}}
+{{$type := index .StringMap "type"}}
+{{$active := index .StringMap "active"}}
 <!-- Add new master-class button -->
 
 <!-- <div class="row justify-content-end"> -->
@@ -52,13 +54,13 @@
                     
                     <td class="text-center">{{.ID}}</td>
                 
-                    <td class="text-center"><a href="/admin/show-lead/{{.ID}}">
+                    <td class="text-center"><a href="/admin/show-lead/{{$type}}/{{$active}}/{{.ID}}">
                         {{.Client.FirstName}} {{.Client.LastName}}
                     </a></td>  
                     <td class="text-center">{{.Client.PhoneNumber}}</td>
                     <td class="text-center">{{humanDate .Date}}</td>
                     <td class="text-center">{{humanTime .Time}}</td>
-                    <td class="text-center">{{.Duration}}</td>
+                    <td class="text-center">{{.Duration}} мин</td>
                     <td class="text-center">{{if eq .CheckArtists true}}<i class="ti-check menu-icon"></i>{{end}}</td>
                     <td class="text-center">{{if eq .CheckAssistants true}}<i class="ti-check menu-icon"></i>{{end}}</td>
                     <td class="text-center">{{if eq .Confirmed true}}<i class="ti-check menu-icon"></i>{{end}}</td>
