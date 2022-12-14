@@ -25,6 +25,9 @@ type DatabaseRepo interface {
 	GetAllRawLeads() ([]models.Lead, error)
 	GetAllConfirmedLeads() ([]models.Lead, error)
 	GetAllArchiveLeads() ([]models.Lead, error)
+	GetCountRawLeads() (int, error)
+	GetCountConfirmedLeads() (int, error)
+	GetCountArchiveLeads() (int, error)
 	GetLeadByID(idLead int) (*models.Lead, error)
 	SetConfirmedLeadByID(idLead int) error
 	DeleteConfirmedLeadByID(idLead int) error

@@ -1030,3 +1030,58 @@ func (m *postgresDBRepo) updatePrograms(ctx context.Context, lead *models.Lead) 
 }
 
 // Update lead end
+
+//Get count leads start
+
+func (m *postgresDBRepo) GetCountRawLeads() (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	queryRawLeads := `
+	select count(id_lead)
+	from leads
+	where (date + time)>(current_time+current_date)  AND (check_artists<>true OR confirmed<>true OR check_assistants<>true)
+	`
+	var count int
+	err := m.DB.QueryRowContext(ctx, queryRawLeads).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (m *postgresDBRepo) GetCountConfirmedLeads() (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	queryRawLeads := `
+	select count(id_lead)
+	from leads
+	where (date + time)>(current_time+ current_date) AND (check_artists=true AND confirmed=true AND check_assistants=true)
+	`
+	var count int
+	err := m.DB.QueryRowContext(ctx, queryRawLeads).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (m *postgresDBRepo) GetCountArchiveLeads() (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	queryRawLeads := `
+	select count(id_lead)
+	from leads
+	where (date + time)<(current_time+ current_date)
+	`
+	var count int
+	err := m.DB.QueryRowContext(ctx, queryRawLeads).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+//Get ount leads end

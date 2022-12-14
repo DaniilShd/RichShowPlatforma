@@ -95,9 +95,9 @@
                     <div class="collapse" id="manager">
                       <ul class="nav flex-column sub-menu">
                         
-                        <li class="nav-item"> <a class="nav-link" href="/admin/leads-raw">Необратанные лиды</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="/admin/leads-confirmed">Активные лиды</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="/admin/leads-archive">Архив</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/leads-raw">Необратанные лиды(<p id="raw-leads"></p>)</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/leads-confirmed">Активные лиды(<p id="confirmed-leads"></p>)</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/admin/leads-archive">Архив(<p id="archive-leads"></p>)</a></li>
                         
                       </ul>
                     </div>
@@ -256,6 +256,7 @@
     <script src="https://unpkg.com/notie"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/static/js/app.js"></script>
+    <script src="/static/js/fetchLead.js"></script>
     <script>
 
       let attention = Prompt();

@@ -23,6 +23,8 @@ func routes() *chi.Mux {
 
 	// main page
 	mux.Route("/", func(mux chi.Router) {
+		//Fetch
+
 		mux.Use(Auth)
 	})
 
@@ -32,8 +34,6 @@ func routes() *chi.Mux {
 
 		mux.Get("/", handlers.Repo.Dashboard)
 		mux.Get("/dashboard", handlers.Repo.Dashboard)
-
-		// mux.Get("/test", handlers.Repo.TestFetch)
 
 		//Check-lists-----------------------------------------------------------------------------------------------------------------------------------
 		mux.Get("/check-lists/{src}", handlers.Repo.CheckListAll)
@@ -119,6 +119,9 @@ func routes() *chi.Mux {
 		mux.Get("/hero-change/{id}", handlers.Repo.ChangeHero)
 		mux.Post("/hero-change/{id}", handlers.Repo.ChangePostHero)
 
+		//Fetch
+		mux.Get("/fetch-leads", handlers.Repo.FetchLead)
+
 	})
 
 	//Stocker pages
@@ -140,7 +143,8 @@ func routes() *chi.Mux {
 	mux.Route("/manager", func(mux chi.Router) {
 		mux.Use(AuthManager)
 
-		// mux.Get("/", handlers.Repo.HomeManager)
+		//Fetch
+		mux.Get("/fetch-leads", handlers.Repo.FetchLead)
 	})
 
 	// login and logout
