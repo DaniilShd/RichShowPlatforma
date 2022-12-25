@@ -18,12 +18,11 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(idClient)
+
 	idChild, err := m.insertChild(ctx, &lead.Child, idClient)
 	if err != nil {
 		return err
 	}
-	fmt.Println(idChild)
 
 	queryInsertLead := `insert into leads
 	(id_client, amount_of_children, average_age_of_children, address, date, time, id_client_child, description, duration)
@@ -95,34 +94,70 @@ func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs *models.Le
 	(id_check_list, description, id_lead)
 	VALUES ($1, $2, $3)
 	`
+
+	queryInsertOrderStore := `
+	insert into order_store
+	(id_check_list, id_lead)
+	Values ($1, $2)
+	`
 	for _, program := range programs.MasterClasses {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
-		if err != nil {
-			return err
+		if program.ID != 0 {
+			_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
+			if err != nil {
+				return err
+			}
+			_, err = m.DB.ExecContext(ctx, queryInsertOrderStore, program.ID, idLead)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	for _, program := range programs.Shows {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
-		if err != nil {
-			return err
+		if program.ID != 0 {
+			_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
+			if err != nil {
+				return err
+			}
+			_, err = m.DB.ExecContext(ctx, queryInsertOrderStore, program.ID, idLead)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	for _, program := range programs.PartyAndQuests {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
-		if err != nil {
-			return err
+		if program.ID != 0 {
+			_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
+			if err != nil {
+				return err
+			}
+			_, err = m.DB.ExecContext(ctx, queryInsertOrderStore, program.ID, idLead)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	for _, program := range programs.Animations {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
-		if err != nil {
-			return err
+		if program.ID != 0 {
+			_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
+			if err != nil {
+				return err
+			}
+			_, err = m.DB.ExecContext(ctx, queryInsertOrderStore, program.ID, idLead)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	for _, program := range programs.Others {
-		_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
-		if err != nil {
-			return err
+		if program.ID != 0 {
+			_, err := m.DB.ExecContext(ctx, queryInsertProgram, program.ID, program.Description, idLead)
+			if err != nil {
+				return err
+			}
+			_, err = m.DB.ExecContext(ctx, queryInsertOrderStore, program.ID, idLead)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -132,24 +167,24 @@ func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs *models.Le
 
 func (m *postgresDBRepo) insertHeroes(ctx context.Context, heroes *[]models.LeadHero, idLead int) error {
 
-	queryInsertHeroesArtist0 := `insert into lead_heroes
+	queryInsertHeroes := `insert into lead_heroes
 	(id_hero, id_lead)
 	VALUES ($1, $2)
 	`
 
-	queryInsertHeroes := `insert into lead_heroes
-	(id_hero, id_lead, id_artist)
-	VALUES ($1, $2, $3)
+	queryInsertArtist := `update lead_heroes
+	set id_artist=$1
+	where id_lead=$2
 	`
 
 	for _, hero := range *heroes {
-		if hero.ArtistID == 0 {
-			_, err := m.DB.ExecContext(ctx, queryInsertHeroesArtist0, hero.HeroID, idLead)
-			if err != nil {
-				return err
-			}
-		} else {
-			_, err := m.DB.ExecContext(ctx, queryInsertHeroes, hero.HeroID, idLead, hero.ArtistID)
+
+		_, err := m.DB.ExecContext(ctx, queryInsertHeroes, hero.HeroID, idLead)
+		if err != nil {
+			return err
+		}
+		if hero.ArtistID != 0 {
+			_, err := m.DB.ExecContext(ctx, queryInsertArtist, hero.ArtistID, idLead)
 			if err != nil {
 				return err
 			}
@@ -233,7 +268,7 @@ func (m *postgresDBRepo) insertChild(ctx context.Context, child *models.Child, i
 
 func (m *postgresDBRepo) checkArtist(ctx context.Context, idLead int) (bool, error) {
 	querySelect := `
-	select id_artist
+	select id_lead_hero, id_artist
 	from lead_heroes
 	where id_lead = $1
 	`
@@ -248,22 +283,26 @@ func (m *postgresDBRepo) checkArtist(ctx context.Context, idLead int) (bool, err
 		return false, err
 	}
 	var idArtists []int
+	fmt.Println("check!!!", idLead)
+	fmt.Println("check!!!", rows)
 
 	for rows.Next() {
 		var idArtist sql.NullInt64
-		err := rows.Scan(&idArtist)
+		var idLeadHero int
+		err := rows.Scan(&idLeadHero, &idArtist)
 		if err != nil {
 			return false, err
 		}
-		if int(idArtist.Int64) == 0 {
+		if !idArtist.Valid {
 			return false, nil
+		} else {
+			idArtists = append(idArtists, int(idArtist.Int64))
 		}
-		idArtists = append(idArtists, int(idArtist.Int64))
 	}
-	if len(idArtists) == 0 {
-		return false, nil
+	if len(idArtists) != 0 {
+		return true, nil
 	}
-	return true, nil
+	return false, nil
 }
 
 func (m *postgresDBRepo) checkAssistant(ctx context.Context, idLead int) (bool, error) {
@@ -287,15 +326,15 @@ func (m *postgresDBRepo) checkAssistant(ctx context.Context, idLead int) (bool, 
 		}
 		idAssistants = append(idAssistants, id)
 	}
-	if len(idAssistants) == 0 {
-		return false, nil
+	if len(idAssistants) != 0 {
+		return true, nil
 	}
 
 	if err = rows.Err(); err != nil {
 		return false, err
 	}
 
-	return true, nil
+	return false, nil
 }
 
 //Get all leads --------------------------------------------------------------------------------------------------------------------------
@@ -526,6 +565,9 @@ func (m *postgresDBRepo) GetLeadByID(idLead int) (*models.Lead, error) {
 	lead.Client.PhoneNumber = helpers.ConvertNumberPhone(client.PhoneNumber)
 
 	child, err := m.getChildByID(ctx, lead.Child.ID)
+	if err != nil {
+		return nil, err
+	}
 	lead.Child.Name = child.Name
 	lead.Child.DateOfBirthDay = child.DateOfBirthDay
 	lead.Child.Gender = child.Gender
@@ -548,6 +590,11 @@ func (m *postgresDBRepo) GetLeadByID(idLead int) (*models.Lead, error) {
 	}
 	for _, program := range programs[CHECK_LISTS_TYPE_OF_SHOW] {
 		lead.Shows = append(lead.Shows, program.(models.Show))
+	}
+
+	lead.Heroes, err = m.getHeroesByID(ctx, lead.ID)
+	if err != nil {
+		return nil, err
 	}
 
 	lead.Assistants, err = m.getLeadAssistants(ctx, lead.ID)
@@ -668,7 +715,7 @@ func (m *postgresDBRepo) getProgramsByLeadID(ctx context.Context, idLead int) (m
 	from lead_programs
 	where id_lead=$1
 	`
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Здесь остановился!!!!!!!!!!
+
 	result := make(map[int][]interface{}, 5)
 
 	rows, err := m.DB.QueryContext(ctx, querySelect, idLead)
@@ -813,6 +860,18 @@ func (m *postgresDBRepo) DeleteLeadByID(idLead int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
+	queryDeleteOrderStore := `
+	delete 
+	from order_store
+	where id_lead=$1 and completed<>true
+	`
+
+	queryDisassembleBagOrderStore := `
+	update order_store
+	set disassemble_bag=true
+	where id_lead=$1 and completed=true
+	`
+
 	queryDeleteLead := `
 	delete 
 	from leads 
@@ -836,7 +895,16 @@ func (m *postgresDBRepo) DeleteLeadByID(idLead int) error {
 	where id_lead=$1
 	`
 
-	_, err := m.DB.ExecContext(ctx, queryDeleteLead, idLead)
+	_, err := m.DB.ExecContext(ctx, queryDeleteOrderStore, idLead)
+	if err != nil {
+		return err
+	}
+	_, err = m.DB.ExecContext(ctx, queryDisassembleBagOrderStore, idLead)
+	if err != nil {
+		return err
+	}
+
+	_, err = m.DB.ExecContext(ctx, queryDeleteLead, idLead)
 	if err != nil {
 		return err
 	}
@@ -865,14 +933,11 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	fmt.Println(1223)
-
 	err := m.updateClient(ctx, &lead.Client)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(1223)
 	err = m.updateChild(ctx, &lead.Child)
 	if err != nil {
 		return err
@@ -882,8 +947,7 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 	set amount_of_children=$1, average_age_of_children=$2, address=$3, date=$4, time=$5, description=$6, duration=$7
 	where id_lead=$8
 	`
-	fmt.Println(1223)
-	var idLead int
+
 	_, err = m.DB.ExecContext(ctx, queryUpdateLead,
 		lead.AmountOfChildren,
 		lead.AverageAgeOfChildren,
@@ -896,8 +960,6 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(1223)
 
 	err = m.updatePrograms(ctx, lead)
 	if err != nil {
@@ -912,7 +974,7 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 		return err
 	}
 
-	checkArtist, err := m.checkArtist(ctx, idLead)
+	checkArtist, err := m.checkArtist(ctx, lead.ID)
 	if err != nil {
 		return err
 	}
@@ -920,12 +982,12 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 	set check_artists=$1
 	where id_lead=$2
 	`
-	_, err = m.DB.ExecContext(ctx, queryCheckArtist, checkArtist, idLead)
+	_, err = m.DB.ExecContext(ctx, queryCheckArtist, checkArtist, lead.ID)
 	if err != nil {
 		return err
 	}
 
-	checkAssistant, err := m.checkAssistant(ctx, idLead)
+	checkAssistant, err := m.checkAssistant(ctx, lead.ID)
 	if err != nil {
 		return err
 	}
@@ -933,7 +995,7 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 	set check_assistants=$1
 	where id_lead=$2
 	`
-	_, err = m.DB.ExecContext(ctx, queryCheckAssistant, checkAssistant, idLead)
+	_, err = m.DB.ExecContext(ctx, queryCheckAssistant, checkAssistant, lead.ID)
 	if err != nil {
 		return err
 	}
@@ -1012,14 +1074,136 @@ func (m *postgresDBRepo) updateHeroes(ctx context.Context, lead *models.Lead) er
 }
 
 func (m *postgresDBRepo) updatePrograms(ctx context.Context, lead *models.Lead) error {
-	queryDelete := `
+	queryDeleteProgram := `
 	delete 
 	from lead_programs
 	where id_lead=$1
 	`
-	_, err := m.DB.ExecContext(ctx, queryDelete, lead.ID)
+
+	//Удаляем программы которые не были собраны
+	queryDeleteOrderStore := `
+	delete 
+	from order_store
+	where id_lead=$1 and completed<>true
+	`
+
+	_, err := m.DB.ExecContext(ctx, queryDeleteProgram, lead.ID)
 	if err != nil {
 		return err
+	}
+	_, err = m.DB.ExecContext(ctx, queryDeleteOrderStore, lead.ID)
+	if err != nil {
+		return err
+	}
+
+	//выборка программ которые уже были собраны и произведен вычет расходных материалов
+	queryCompletedOrderStore := `
+	select id_check_list
+	from order_store
+	where id_lead=$1 and completed=true and disassemble_bag<>true
+	`
+	rows, err := m.DB.QueryContext(ctx, queryCompletedOrderStore, lead.ID)
+	if err != nil {
+		return err
+	}
+
+	var idsPrograms []int
+	for rows.Next() {
+		var idProgram int
+		err := rows.Scan(&idProgram)
+		if err != nil {
+			return err
+		}
+		idsPrograms = append(idsPrograms, idProgram)
+	}
+
+	//выборка программ которые уже были собраны и произведен вычет расходных материалов
+	queryChangeDescription := `
+	update lead_programs
+	set description=$1
+	where id_lead=$2 and id_check_list=$3
+	`
+
+	//Выборка всех id которые есть в изменнем лиде(новом)
+	for index, item := range lead.MasterClasses {
+		for y, programDB := range idsPrograms {
+			if item.ID == programDB {
+				_, err = m.DB.ExecContext(ctx, queryChangeDescription, item.Description, lead.ID, item.ID)
+				if err != nil {
+					return err
+				}
+				lead.MasterClasses[index] = models.MasterClass{}
+				idsPrograms[y] = 0
+			}
+		}
+	}
+	for index, item := range lead.Shows {
+		for y, programDB := range idsPrograms {
+			if item.ID == programDB {
+				_, err = m.DB.ExecContext(ctx, queryChangeDescription, item.Description, lead.ID, item.ID)
+				if err != nil {
+					return err
+				}
+				lead.Shows[index] = models.Show{}
+				idsPrograms[y] = 0
+			}
+		}
+	}
+	for index, item := range lead.Others {
+		for y, programDB := range idsPrograms {
+			if item.ID == programDB {
+				_, err = m.DB.ExecContext(ctx, queryChangeDescription, item.Description, lead.ID, item.ID)
+				if err != nil {
+					return err
+				}
+				lead.Others[index] = models.Other{}
+				idsPrograms[y] = 0
+			}
+		}
+	}
+	for index, item := range lead.Animations {
+		for y, programDB := range idsPrograms {
+			if item.ID == programDB {
+				_, err = m.DB.ExecContext(ctx, queryChangeDescription, item.Description, lead.ID, item.ID)
+				if err != nil {
+					return err
+				}
+				lead.Animations[index] = models.Animation{}
+				idsPrograms[y] = 0
+			}
+		}
+	}
+	for index, item := range lead.PartyAndQuests {
+		for y, programDB := range idsPrograms {
+			if item.ID == programDB {
+				_, err = m.DB.ExecContext(ctx, queryChangeDescription, item.Description, lead.ID, item.ID)
+				if err != nil {
+					return err
+				}
+				lead.PartyAndQuests[index] = models.PartyAndQuest{}
+				idsPrograms[y] = 0
+			}
+		}
+	}
+
+	//Сравниваем id из БД c id которые пришли в измененном лиде
+	// for _, checkListID := range idCheckLists {
+
+	// }
+	//Программы которые были уже собраны и отменены в результате редактирвоания подлежат разбору
+	queryDisassembleBagOrderStore := `
+	update order_store
+	set disassemble_bag=true, canceled=true
+	where id_lead=$1 and completed=true and id_check_list=$2
+	`
+
+	for _, programID := range idsPrograms {
+		if programID != 0 {
+			_, err = m.DB.ExecContext(ctx, queryDisassembleBagOrderStore, lead.ID, programID)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	err = m.insertPrograms(ctx, lead, lead.ID)

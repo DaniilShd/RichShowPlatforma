@@ -47,15 +47,24 @@ func routes() *chi.Mux {
 		mux.Get("/delete-check-list/{src}/{id}", handlers.Repo.DeleteCheсkList)
 
 		//Store-----------------------------------------------------------------------------------------------------------------------------------
-		mux.Get("/store", handlers.Repo.StoreItemAll)
-		//Create new check-list
+		mux.Get("/store-all", handlers.Repo.StoreItemAll)
+		//Create new store
 		mux.Get("/store-new", handlers.Repo.NewStoreItem)
 		mux.Post("/store-new", handlers.Repo.NewPostStoreItem)
-		//Changes master-class
+		//Changes store
 		mux.Get("/store/{id}", handlers.Repo.ShowStoreItem)
 		mux.Post("/store/{id}", handlers.Repo.ShowPostStoreItem)
-		//delete any check-list
+		//delete any store
 		mux.Get("/delete-store/{id}", handlers.Repo.DeleteStoreItem)
+		//Show store-lead
+		// mux.Get("/store-lead-new/{src}/{id}", handlers.Repo.DeleteStoreItem)
+		mux.Get("/store-leads/{src}", handlers.Repo.AllStoreOrder)
+		//show store lead
+		mux.Get("/store-lead/{src}/{id}", handlers.Repo.ShowStoreOrder)
+		mux.Post("/store-lead/{src}/{id}", handlers.Repo.ShowPostStoreOrder)
+		//Delete store-lead
+		mux.Get("/store-lead-delete/{src}/{id}", handlers.Repo.DestroyStoreOrder)
+		mux.Post("/store-lead-change/{src}/{id}", handlers.Repo.ChangePostStoreOrder)
 
 		//Manager
 		//All leads
@@ -121,6 +130,7 @@ func routes() *chi.Mux {
 
 		//Fetch
 		mux.Get("/fetch-leads", handlers.Repo.FetchLead)
+		mux.Get("/fetch-orders", handlers.Repo.FetchStoreOrder)
 
 	})
 

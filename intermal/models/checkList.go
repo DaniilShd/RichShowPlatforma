@@ -3,7 +3,7 @@ package models
 type Item struct {
 	ID             int
 	Name           string
-	AmountItemOnce interface{}
+	AmountItemOnce float64
 	Dimension      string
 }
 

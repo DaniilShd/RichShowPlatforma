@@ -1,6 +1,6 @@
 
     //Пример запроса на сервер для получения информации без перезагрузки страницы
-    function sayHi() {
+    function updateLead() {
         fetch('http://localhost:8080/admin/fetch-leads')
       .then((response) => {
         return response.json();
@@ -14,5 +14,22 @@
         targetArchive.textContent = data['archive-leads']
       });
     }
-    sayHi()
-    setInterval(() => sayHi(), 1000);
+    updateLead()
+    // setInterval(() => updateLead(), 1000);
+
+    function updateStoreOrder() {
+      fetch('http://localhost:8080/admin/fetch-orders')
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      targetRaw = document.getElementById('new-order')
+      targetConfirmed = document.getElementById('completed-order')
+      targetArchive = document.getElementById('destroy-order')
+      targetRaw.textContent = data['new-order']
+      targetConfirmed.textContent = data['completed-order']
+      targetArchive.textContent = data['destroy-order']
+    });
+  }
+  updateStoreOrder()
+  // setInterval(() => updateStoreOrder(), 1000);

@@ -19,6 +19,19 @@ type DatabaseRepo interface {
 	DeleteStoreItemByID(id int) error
 	InsertStoreItem(storeItem *models.StoreItem) error
 	UpdateStoreItem(storeItem *models.StoreItem) error
+	//StoreOder
+	GetAllNewStoreOrder() ([]models.StoreLead, error)
+	GetAllCompleteStoreOrder() ([]models.StoreLead, error)
+	GetAllToDestroyStoreOrder() ([]models.StoreLead, error)
+	GetCountNewStoreOrder() (int, error)
+	GetCountCompleteStoreOrder() (int, error)
+	GetCountToDestroyStoreOrder() (int, error)
+	GetStoreOrderByID(id int) (*models.StoreLead, error)
+	// SetCompleteStoreOrder(id int) error
+	// UnSetCompleteStoreOrder(id int) error
+	DeleteStoreOrderByID(id int) error
+	InsertStoreOrder(storeOrder *models.StoreLead) error
+	UpdateStoreOrder(storeOrder *models.StoreLead) error
 
 	//Manager
 	InsertLead(lead *models.Lead) error

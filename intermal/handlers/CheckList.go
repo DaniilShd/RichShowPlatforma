@@ -146,7 +146,7 @@ func (m *Repository) NewPostCheckList(w http.ResponseWriter, r *http.Request) {
 		item.Name = storeItem.Name
 		item.AmountItemOnce, err = strconv.ParseFloat(itemsMinAmount[i], 64)
 		if err != nil {
-			item.AmountItemOnce = itemsMinAmount[i]
+			item.AmountItemOnce = 0 //itemsMinAmount[i]
 			form.Errors.Add("amount_item_once", "Необходимо ввести число, десятичные числа вводить через точку!")
 		}
 		items = append(items, item)
@@ -322,7 +322,7 @@ func (m *Repository) ShowPostCheckList(w http.ResponseWriter, r *http.Request) {
 		item.Name = storeItem.Name
 		item.AmountItemOnce, err = strconv.ParseFloat(itemsMinAmount[i], 64)
 		if err != nil {
-			item.AmountItemOnce = itemsMinAmount[i]
+			item.AmountItemOnce = 0 //itemsMinAmount[i]
 			form.Errors.Add("amount_item_once", "Необходимо ввести число, десятичные числа вводить через точку!")
 		}
 		items = append(items, item)

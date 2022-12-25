@@ -1,0 +1,75 @@
+{{template "admin" .}}
+
+{{define "css"}}
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "page-title"}}
+Склад
+{{end}}
+
+{{define "content"}}
+
+{{$type := index .StringMap "type"}}
+<!-- Add new master-class button -->
+
+<!-- <div class="row justify-content-end"> -->
+<div class="clearfix"></div>
+    <div class="col-md-12">
+        
+        {{$storeLead := index .Data "store-lead"}}
+        
+
+        <table class="table table-striped table-hover" id="all-stores">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Наименование</th>
+                    <th>Вид программы</th>
+                    <th>ID  лида</th>
+                    <th>Дата праздника</th>
+                    <th>Время</th>
+                    
+                
+                </tr>
+            </thead>
+            <tbody>
+                {{range $storeLead}}
+                <tr>
+                    
+                    <td>{{.ID}}</td>
+                
+                    <td><a href="/admin/store-lead/{{$type}}/{{.ID}}">
+                        {{.Name}}
+                    </a></td>
+                    
+                    <td>{{.ProgramType}}</td>
+                    <td>{{.LeadID}}</td>
+                    <td>{{humanDate .Date}}</td>
+                    <td>{{humanTime .Time}}</td>
+                    
+                
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        
+    </div>
+{{end}}
+
+{{define "js"}}
+
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        const dataTable = new simpleDatatables.DataTable("#all-stores", {
+        select: 0, sort: "desc",
+})
+    })
+    
+
+</script>
+
+{{end}}
+
+

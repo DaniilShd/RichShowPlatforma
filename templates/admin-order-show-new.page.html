@@ -1,0 +1,200 @@
+{{template "admin" .}}
+
+{{define "css"}}
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "page-title"}}
+{{$storeLead := index .Data "store-lead"}}
+Заказ #{{$storeLead.LeadID}}
+{{end}}
+
+{{define "content"}}
+{{$storeLead := index .Data "store-lead"}}
+{{$type := index .StringMap "type"}}
+{{$checkList := index .Data "check-list"}}
+
+<!-- Add new master-class button -->
+
+<!-- <div class="row justify-content-end"> -->
+
+
+    <div class="col-md-12">
+
+
+        <div class="container mb-3">
+            <form action="/admin/{{if eq $type "new"}}store-lead{{else}}store-lead-change{{end}}/{{$type}}/{{$storeLead.ID}}" method="post" enctype="multipart/form-data" novalidate>
+
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+
+
+            <div class="row ">
+                <div class="col-12">
+                    <h4>{{$storeLead.Name}} (Количество детей: {{$storeLead.AmountOfChilds}})</h4>
+                  <ul>
+                    {{range $checkList.NameOfPoints}}
+                    <li class="ti-check-box menu-icon">
+                        {{.}}
+                    </li>
+                    {{end}}
+                    
+                  </ul>  
+                  <h4>Расходные материалы</h4>
+                  <ul>
+                    {{range $checkList.Items}}
+                    <li>
+                        {{.Name}} - {{.AmountItemOnce}} {{.Dimension}}
+                    </li>
+                    {{end}}
+                    
+                  </ul> 
+
+                  <div class="mb-3">
+                    <h4>Комментарий от менеджера</h4>
+                    {{$storeLead.LeadDescription}}
+                  </div>
+
+                  {{if eq $type "new"}}
+                  <div class="mb-3">
+                    <label for="photo" class="form-label">Фотография</label>
+                    {{with .Form.Errors.Get "photo"}}
+                    <label for="" class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" type="file" name="photo" accept="image/*" id="file" required>
+                  </div>
+                  {{end}}
+
+                  {{if eq $type "completed"}}
+                  <div class="mb-3">
+                
+                    <label for="photo" class="form-label">Заменить фотографию</label>
+                    {{with .Form.Errors.Get "photo"}}
+                    <label for="" class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" type="file" name="photo" accept="image/*" id="file" required>
+
+                  </div>
+                  <div class="mb-3">
+                    <div class="row">
+                        <div class="col-12">
+                            <img src="/static/img/store-leads/{{$storeLead.Photo}}" alt="" height="500px">
+                        </div>
+                        
+                    </div>
+                  
+                  </div>
+                  {{end}}
+
+                
+
+                  {{if eq $type "destroy"}}
+                  <div class="mb-3">
+                    <div class="row">
+                        <div class="col-12">
+                            <img src="/static/img/store-leads/{{$storeLead.Photo}}" alt="" height="500px">
+                        </div>
+                        
+                    </div>
+                  
+                  </div>
+                  {{end}}
+ 
+                  {{if eq $type "new"}}
+                <div class="mb-3">
+                    <label for="description" class="form-label">Комментарий</label>
+                    {{with .Form.Errors.Get "description"}}
+                    <label for="" class="text-danger">{{.}}</label>
+                    {{end}}
+                    <textarea required type="text" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}"  rows="5" id="description" name="description">{{$storeLead.StoreDescription}}</textarea>
+                    </div>
+
+                    {{end}}
+
+                    
+                  {{if eq $type "completed"}}
+                  <div class="mb-3">
+                      <label for="description" class="form-label">Комментарий</label>
+                      {{with .Form.Errors.Get "description"}}
+                      <label for="" class="text-danger">{{.}}</label>
+                      {{end}}
+                      <textarea required type="text" class="form-control {{with .Form.Errors.Get "description"}} is-invalid {{end}}"  rows="5" id="description" name="description">{{$storeLead.StoreDescription}}</textarea>
+                      </div>
+  
+                      {{end}}
+
+                      {{if eq $type "destroy"}}
+                      <h4>Комментарий от реквизитора</h4>
+                      <p>{{$storeLead.StoreDescription}}</p>
+                 
+                     
+                      </div>
+  
+                      {{end}}
+                
+
+                  <div class="container mb-3" >
+                    {{if eq $type "new"}}
+                    <button type="submit" class="btn btn-primary">Реквизит подготовлен</button>
+                    {{end}}
+                    {{if eq $type "completed"}}
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    {{end}}
+                    {{if eq $type "destroy"}}
+                    <a href="/admin/store-lead-delete/{{$type}}/{{$storeLead.ID}}" class="btn btn-success">Реквизит разобран</a>
+                    {{end}}
+                    <a href="/admin/store-leads/{{$type}}" class="btn btn-warning">Назад</a>
+                </div> 
+                </div>
+                
+            </div>
+        </form>
+            
+        </div>
+        
+
+    
+        
+
+    </div>
+{{end}}
+
+{{define "js"}}
+{{$storeLead := index .Data "store-lead"}}
+{{$type := index .StringMap "type"}}
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script>
+ 
+
+
+
+    
+    function executeExample(id) {
+        const ipAPI = '//api.ipify.org?format=json'
+
+const inputValue = fetch(ipAPI)
+  .then(response => response.json())
+  .then(data => data.ip)
+
+const { value: ipAddress } = await Swal.fire({
+  title: 'Enter your IP address',
+  input: 'text',
+  inputLabel: 'Your IP address',
+  inputValue: inputValue,
+  showCancelButton: true,
+  inputValidator: (value) => {
+    if (!value) {
+      return 'You need to write something!'
+    }
+  }
+})
+
+if (ipAddress) {
+  Swal.fire(`Your IP address is ${ipAddress}`)
+}
+    }
+</script>
+
+{{end}}
+
+

@@ -643,8 +643,17 @@ func (m *Repository) DeleteLead(w http.ResponseWriter, r *http.Request) {
 
 	err = m.DB.DeleteLeadByID(id)
 	if err != nil {
-		fmt.Println(err)
-		helpers.ServerError(w, err)
+		var link string
+		switch m.App.Session.Get(r.Context(), "access_level") {
+		case ADMIN_ACCESS_LEVEL:
+			link = "/admin/leads-" + typeSrc
+		case MANAGER_ACCESS_LEVEL:
+			link = "/manager/leads-" + typeSrc
+		}
+
+		m.App.Session.Put(r.Context(), "warning", "Заказ не удален, есть неразобранный реквизит")
+
+		http.Redirect(w, r, link, http.StatusSeeOther)
 		return
 	}
 
@@ -1087,8 +1096,6 @@ func (m *Repository) ChangePostLead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(lead)
-
 	err = m.DB.UpdateLead(&lead)
 	if err != nil {
 		fmt.Println(err)
@@ -1105,8 +1112,6 @@ func (m *Repository) ChangePostLead(w http.ResponseWriter, r *http.Request) {
 	case MANAGER_ACCESS_LEVEL:
 		link = "/manager/show-lead/" + typeSrc + "/" + active + "/" + strconv.Itoa(idLink)
 	}
-
-	fmt.Println(link)
 
 	http.Redirect(w, r, link, http.StatusSeeOther)
 }

@@ -44,7 +44,6 @@ type Other struct {
 type LeadHero struct {
 	ID              int
 	ArtistID        int
-	Description     string
 	HeroID          int
 	HeroName        string
 	ArtistFirstName string

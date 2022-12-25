@@ -50,7 +50,7 @@
                         {{.Name}}
                     </a></td>
                     
-                    <td>{{.CurrentAmount}}</td>
+                    <td {{if gt .MinAmount .CurrentAmount}}style="background-color:red;"{{end}}>{{.CurrentAmount}}</td>
                     <td>{{.MinAmount}}</td>
                     <td>{{.Dimension}}</td>
                     <td>{{.Description}}</td>
