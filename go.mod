@@ -6,6 +6,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/go-chi/chi v1.5.4
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/justinas/nosurf v1.1.1
@@ -13,7 +14,6 @@ require (
 )
 
 require (
-	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.13.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect

@@ -11,6 +11,7 @@ import (
 	"github.com/DaniilShd/RichShowPlatforma/intermal/handlers"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/helpers"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/render"
+	modelsTelegram "github.com/DaniilShd/RichShowPlatforma/intermal/telegram/models"
 	"github.com/alexedwards/scs/v2"
 )
 
@@ -28,6 +29,12 @@ func main() {
 
 	defer db.SQL.Close()
 
+	//Запускаю в отдельной горутине телеграм бота
+	go StartTelegramBot()
+
+	defer close(app.MailChan)
+	defer close(app.UpdateCacheAccount)
+
 	srv := &http.Server{
 		Addr:    portNumber,
 		Handler: routes(),
@@ -38,6 +45,16 @@ func main() {
 }
 
 func run() (*driver.DB, error) {
+
+	//Создаю канал для передачи сообщений
+	mailChan := make(chan modelsTelegram.MailData)
+	app.MailChan = mailChan
+
+	UpdateCacheAccount := make(chan bool)
+	app.UpdateCacheAccount = UpdateCacheAccount
+
+	RequestFromTelegram := make(chan modelsTelegram.RequestFromChat)
+	app.RequestFromTelegram = RequestFromTelegram
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
@@ -69,5 +86,22 @@ func run() (*driver.DB, error) {
 	helpers.NewHelpers(&app)
 	handlers.NewHandlers(handlers.NewRepository(&app, db))
 
+	go listenChannelToRequestDBFromTelegram(&app, db)
+
 	return db, nil
+}
+
+func listenChannelToRequestDBFromTelegram(a *config.AppConfig, db *driver.DB) {
+	m := handlers.NewRepository(&app, db)
+	for {
+		request := <-app.RequestFromTelegram
+		switch request.Command {
+		case "get_lead":
+			lead, err := m.DB.GetLeadByID(request.LeadID)
+			if err != nil {
+				log.Fatal(err)
+			}
+			request.ResponseLeadFromApp <- lead
+		}
+	}
 }

@@ -1,0 +1,9 @@
+package dbrepo
+
+const (
+	CHECK_LISTS_TYPE_OF_SHOW               = 1
+	CHECK_LISTS_TYPE_OF_MASTER_CLASS       = 2
+	CHECK_LISTS_TYPE_OF_ANIMATION          = 3
+	CHECK_LISTS_TYPE_OF_PARTIES_AND_QUESTS = 4
+	CHECK_LISTS_TYPE_OF_OTHER              = 5
+)
