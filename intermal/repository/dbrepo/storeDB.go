@@ -298,7 +298,7 @@ func (m *postgresDBRepo) GetStoreOrderByID(id int) (*models.StoreLead, error) {
 
 	querySelectJoinNewStoreOrder := `
 	Select l.id_lead, l.date, l.time, l.description, l.amount_of_children,
-	os.id_order_store, os.photo, os.description, os.canceled,
+	os.id_order_store, os.photo, os.description, os.canceled, os.completed,
 	cl.name_check_list, cl.id_check_list, 
 	clt.name_type
 	from leads l 
@@ -325,6 +325,7 @@ func (m *postgresDBRepo) GetStoreOrderByID(id int) (*models.StoreLead, error) {
 		&photo,
 		&description,
 		&StoreOrder.Canceled,
+		&StoreOrder.Completed,
 		&StoreOrder.Name,
 		&StoreOrder.CheckListID,
 		&StoreOrder.ProgramType)

@@ -301,12 +301,11 @@ func (m *Repository) NewPostLead(w http.ResponseWriter, r *http.Request) {
 			}
 			hero.ArtistFirstName = artistDB.FirstName
 			hero.ArtistLastName = artistDB.LastName
-			fmt.Println(artistDB)
+			hero.NeedSendMessage = true
 		}
 
 		hero.HeroID = idHero
 		heroDB, _ := m.DB.GetHeroByID(hero.HeroID)
-		fmt.Println(heroDB)
 		hero.HeroName = heroDB.Name
 		heroes = append(heroes, hero)
 	}
@@ -326,6 +325,7 @@ func (m *Repository) NewPostLead(w http.ResponseWriter, r *http.Request) {
 		assistantItem, _ := m.DB.GetAssistantByID(assistant.ID)
 		assistant.FirstName = assistantItem.FirstName
 		assistant.LastName = assistantItem.LastName
+		assistant.NeedSendMessage = true
 		assistants = append(assistants, assistant)
 	}
 	lead.Assistants = assistants
@@ -405,8 +405,6 @@ func (m *Repository) NewPostLead(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	fmt.Println(lead)
 
 	err = m.DB.InsertLead(&lead)
 	if err != nil {

@@ -73,6 +73,7 @@ func listenChannelMail(bot *tgbotapi.BotAPI) {
 		data := <-app.MailChan
 		if data.ChatID != 0 {
 			message := tgbotapi.NewMessage(data.ChatID, data.Text)
+			message.ParseMode = "html"
 			bot.Send(message)
 		}
 	}
@@ -81,7 +82,7 @@ func listenChannelMail(bot *tgbotapi.BotAPI) {
 func updateAccounts(ctx context.Context, db *driver.DB) {
 	store.NewAccount(db)
 	for {
-		timer := time.NewTicker(time.Second * 2)
+		timer := time.NewTicker(time.Minute)
 		defer timer.Stop()
 
 		select {

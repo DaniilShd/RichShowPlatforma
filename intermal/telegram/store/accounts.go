@@ -51,5 +51,5 @@ func NewAccount(db *driver.DB) {
 	Account.mu.RLock()
 	Account.AccountMap = accounts
 	Account.mu.RUnlock()
-	fmt.Println(accounts["admin"])
+	fmt.Println(accounts["artist"])
 }

@@ -49,21 +49,15 @@ var ManagerKeyBoard = tgbotapi.NewReplyKeyboard(
 
 var StoreKeyBoard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Заказы в ближайшие 2 дня"),
-		tgbotapi.NewKeyboardButton("Собранный реквизит"),
-	),
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Реквизит для разбора"),
-		tgbotapi.NewKeyboardButton("Список всех заказов"),
-	),
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Список расходников"),
-		tgbotapi.NewKeyboardButton("Список всех заказов"),
+		tgbotapi.NewKeyboardButton("Собранные"),
+		tgbotapi.NewKeyboardButton("Разбор"),
+		tgbotapi.NewKeyboardButton("Новые заявки"),
 	),
 )
 
 func (c *Commander) Start(inputMesage *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(inputMesage.Chat.ID, "Главное меню ниже")
+
 	switch service.ValidationChatID(inputMesage.Chat.ID) {
 	case constant.ADMIN:
 		msg.ReplyMarkup = AdminKeyBoard

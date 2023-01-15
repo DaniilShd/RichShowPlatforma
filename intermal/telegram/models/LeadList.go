@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	modelsFromApp "github.com/DaniilShd/RichShowPlatforma/intermal/models"
 )
 
 type LeadList struct {
@@ -16,8 +14,10 @@ type LeadList struct {
 }
 
 type RequestFromChat struct {
-	Command             string                   `json:"command"`
-	LeadID              int                      `json:"id_lead"`
-	ChatID              int64                    `json:"id_chat"`
-	ResponseLeadFromApp chan *modelsFromApp.Lead `json:"-"`
+	Command             string           `json:"command"`
+	LeadID              int              `json:"id_lead"`
+	ChatID              int64            `json:"id_chat"`
+	CheckListID         int              `json:"-"`
+	ResponseLeadFromApp chan interface{} `json:"-"`
+	StoreOrderID        []int            `json:"-"`
 }

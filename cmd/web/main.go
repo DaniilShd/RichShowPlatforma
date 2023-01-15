@@ -10,6 +10,7 @@ import (
 	"github.com/DaniilShd/RichShowPlatforma/intermal/driver"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/handlers"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/helpers"
+	"github.com/DaniilShd/RichShowPlatforma/intermal/models"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/render"
 	modelsTelegram "github.com/DaniilShd/RichShowPlatforma/intermal/telegram/models"
 	"github.com/alexedwards/scs/v2"
@@ -33,6 +34,7 @@ func main() {
 	go StartTelegramBot()
 
 	defer close(app.MailChan)
+	defer close(app.RequestFromTelegram)
 	defer close(app.UpdateCacheAccount)
 
 	srv := &http.Server{
@@ -101,7 +103,49 @@ func listenChannelToRequestDBFromTelegram(a *config.AppConfig, db *driver.DB) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			request.ResponseLeadFromApp <- lead
+			request.ResponseLeadFromApp <- *lead
+
+		case "get_order_by_id":
+			var result []models.StoreLead
+			for _, id := range request.StoreOrderID {
+				storeOrder, err := m.DB.GetStoreOrderByID(id)
+				if err != nil {
+					log.Fatal(err)
+				}
+				result = append(result, *storeOrder)
+			}
+			request.ResponseLeadFromApp <- result
+		case "get_order":
+			storeOrder, err := m.DB.GetStoreOrderByID(request.LeadID)
+			if err != nil {
+				log.Fatal(err)
+			}
+			request.ResponseLeadFromApp <- *storeOrder
+		case "get_checklist":
+			result, err := m.DB.GetCheckListByID(request.CheckListID)
+			if err != nil {
+				log.Fatal(err)
+			}
+			request.ResponseLeadFromApp <- *result
+		case "get_new_order":
+			result, err := m.DB.GetAllNewStoreOrder()
+			if err != nil {
+				log.Fatal(err)
+			}
+			request.ResponseLeadFromApp <- result
+		case "get_compl_order":
+			result, err := m.DB.GetAllCompleteStoreOrder()
+			if err != nil {
+				log.Fatal(err)
+			}
+			request.ResponseLeadFromApp <- result
+		case "get_dest_order":
+			result, err := m.DB.GetAllToDestroyStoreOrder()
+			if err != nil {
+				log.Fatal(err)
+			}
+			request.ResponseLeadFromApp <- result
 		}
+
 	}
 }

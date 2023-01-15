@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	modelsFromApp "github.com/DaniilShd/RichShowPlatforma/intermal/models"
 
@@ -13,9 +12,9 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (c *Commander) ArtistLeadsList(inputMesage *tgbotapi.Message) {
+func (c *Commander) AssistantLeadsList(inputMesage *tgbotapi.Message) {
 
-	leads, err := c.DB.GetAllLeadsOfArtistByChatID(inputMesage.Chat.ID)
+	leads, err := c.DB.GetAllLeadsOfAssistantByChatID(inputMesage.Chat.ID)
 	if err != nil {
 
 		log.Fatal(err)
@@ -36,14 +35,11 @@ func (c *Commander) ArtistLeadsList(inputMesage *tgbotapi.Message) {
 				LeadID:  lead.ID,
 			})
 
-			heroes := strings.Join(lead.NameHeroes, ", ")
-
-			res = res + fmt.Sprintf("%d) № - %d, Дата: <strong>%s</strong>, Время: <strong>%s</strong>, герои: %s",
+			res = res + fmt.Sprintf("%d) № - %d, Дата: <strong>%s</strong>, Время: <strong>%s</strong>",
 				number,
 				lead.ID,
 				string(lead.Date.Format("02-01-2006")),
-				string(lead.Time.Format("15:04")),
-				heroes) + "\n"
+				string(lead.Time.Format("15:04"))) + "\n"
 
 			if count != 3 {
 				listButton := tgbotapi.NewInlineKeyboardButtonData(strconv.Itoa(number), string(data))
@@ -75,9 +71,9 @@ func (c *Commander) ArtistLeadsList(inputMesage *tgbotapi.Message) {
 
 }
 
-func (c *Commander) ArtistLeadsToday(inputMesage *tgbotapi.Message) {
+func (c *Commander) AssistantLeadsToday(inputMesage *tgbotapi.Message) {
 
-	leads, err := c.DB.GetAllLeadsOfArtistTodayByChatID(inputMesage.Chat.ID)
+	leads, err := c.DB.GetAllLeadsOfAssistantTodayByChatID(inputMesage.Chat.ID)
 	if err != nil {
 
 		log.Fatal(err)
@@ -98,14 +94,11 @@ func (c *Commander) ArtistLeadsToday(inputMesage *tgbotapi.Message) {
 				LeadID:  lead.ID,
 			})
 
-			heroes := strings.Join(lead.NameHeroes, ", ")
-
-			res = res + fmt.Sprintf("%d) № - %d, Дата: <strong>%s</strong>, Время: <strong>%s</strong>, герои: %s",
+			res = res + fmt.Sprintf("%d) № - %d, Дата: <strong>%s</strong>, Время: <strong>%s</strong>",
 				number,
 				lead.ID,
 				string(lead.Date.Format("02-01-2006")),
-				string(lead.Time.Format("15:04")),
-				heroes) + "\n"
+				string(lead.Time.Format("15:04"))) + "\n"
 
 			if count != 3 {
 				listButton := tgbotapi.NewInlineKeyboardButtonData(strconv.Itoa(number), string(data))
@@ -137,7 +130,7 @@ func (c *Commander) ArtistLeadsToday(inputMesage *tgbotapi.Message) {
 
 }
 
-func (c *Commander) GetLeadByID(request models.RequestFromChat) {
+func (c *Commander) GetAssistantLeadByID(request models.RequestFromChat) {
 	var res string
 	var checkLead string
 	var masterClass string
@@ -147,7 +140,6 @@ func (c *Commander) GetLeadByID(request models.RequestFromChat) {
 	var other string
 	var heroes string
 	var assistant string
-	var gender string
 
 	ResponseFromApp := make(chan interface{})
 	request.ResponseLeadFromApp = ResponseFromApp
@@ -158,22 +150,10 @@ func (c *Commander) GetLeadByID(request models.RequestFromChat) {
 
 	leadMy := lead.(modelsFromApp.Lead)
 
-	clientPhoneNumber := strings.ReplaceAll(leadMy.Client.PhoneNumber, " ", "")
-	clientPhoneNumber = strings.ReplaceAll(clientPhoneNumber, ")", "")
-	clientPhoneNumber = strings.ReplaceAll(clientPhoneNumber, "-", "")
-	clientPhoneNumber = strings.ReplaceAll(clientPhoneNumber, "(", "")
-	clientPhoneNumber = "<a href=\"tel:" + clientPhoneNumber + "\">" + clientPhoneNumber + "</a>"
-
 	if leadMy.Confirmed {
 		checkLead = "Да"
 	} else {
 		checkLead = "Нет"
-	}
-
-	if leadMy.Child.Gender == 1 {
-		gender = "мужской"
-	} else {
-		gender = "женский"
 	}
 
 	for _, item := range leadMy.MasterClasses {
@@ -199,10 +179,9 @@ func (c *Commander) GetLeadByID(request models.RequestFromChat) {
 	for _, item := range leadMy.Assistants {
 		assistant = assistant + item.FirstName + " " + item.LastName + " (Телефон: <a href=\"tel:+7" + item.PhoneNumber + "\">+7" + item.PhoneNumber + "</a>)" + ", "
 	}
-	var heroesRes string
+
 	for _, item := range leadMy.Heroes {
-		hero := item.HeroName + " " + "(Аниматор: " + item.ArtistFirstName + " " + item.ArtistLastName + ", Телефон: <a href=\"tel:+7" + item.PhoneNumber + "\">+7" + item.PhoneNumber + "</a>)"
-		heroesRes = strings.Join([]string{heroes, hero}, ", ")
+		heroes = heroes + item.HeroName + " " + "(Аниматор: " + item.ArtistFirstName + " " + item.ArtistLastName + ", Телефон: <a href=\"tel:+7" + item.PhoneNumber + "\">+7" + item.PhoneNumber + "</a>)" + ", "
 	}
 
 	res = fmt.Sprintf(`
@@ -211,14 +190,7 @@ func (c *Commander) GetLeadByID(request models.RequestFromChat) {
 	&#128348; <strong>Время: %s</strong>
 	&#128313; <strong>Адрес:</strong> %s
 	&#128313; <strong>Герои:</strong> %s
-	&#128313; <strong>Имя клиента:</strong> %s
-	&#128313; <strong>Имя ребенка:</strong> %s
-	&#128313; <strong>Возраст ребенка:</strong> %d
-	&#128313; <strong>Пол ребенка:</strong> %s
-	&#128222; <strong>Номер:</strong> %s
 	&#128313; <strong>Продолжительность:</strong> %d мин
-	&#128313; <strong>Среднее количество детей:</strong> %d
-	&#128313; <strong>Средний возраст детей:</strong> %d лет
 	&#128313; <strong>Заказ подтвержден:</strong> %s
 	&#128313; <strong>Комментарий:</strong> %s
 	&#128313; <strong>Мастер-классы:</strong> %s
@@ -231,15 +203,8 @@ func (c *Commander) GetLeadByID(request models.RequestFromChat) {
 		string(leadMy.Date.Format("02-01-2006")),
 		string(leadMy.Time.Format("15:04")),
 		leadMy.Address,
-		heroesRes,
-		fmt.Sprintf("%s %s", leadMy.Client.FirstName, leadMy.Client.LastName),
-		leadMy.Child.Name,
-		leadMy.Child.Age,
-		gender,
-		clientPhoneNumber,
+		heroes,
 		leadMy.Duration,
-		leadMy.AmountOfChildren,
-		leadMy.AverageAgeOfChildren,
 		checkLead,
 		leadMy.Description,
 		masterClass,
@@ -265,7 +230,7 @@ func (c *Commander) GetLeadByID(request models.RequestFromChat) {
 	c.bot.Send(msg)
 }
 
-func (c *Commander) GetOrderByID(request models.RequestFromChat) {
+func (c *Commander) GetAssistantOrderByID(request models.RequestFromChat) {
 	idOrderStore, err := c.DB.GetOrderStoreIDByLeadID(request.LeadID)
 	if err != nil {
 		log.Fatal(err)
@@ -314,7 +279,6 @@ func (c *Commander) GetOrderByID(request models.RequestFromChat) {
 			text = text + "<strong>Комментарий:</strong> " + storeOrder.StoreDescription
 
 			res.ParseMode = "html"
-			fmt.Println()
 			res.Caption = text
 			c.bot.Send(res)
 		} else if !storeOrder.Canceled {

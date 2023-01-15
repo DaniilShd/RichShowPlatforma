@@ -4,7 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
+
+	modelsTelegram "github.com/DaniilShd/RichShowPlatforma/intermal/telegram/models"
 
 	"github.com/DaniilShd/RichShowPlatforma/intermal/helpers"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/models"
@@ -45,15 +48,17 @@ func (m *postgresDBRepo) InsertLead(lead *models.Lead) error {
 		return err
 	}
 
+	lead.ID = idLead
+
 	err = m.insertPrograms(ctx, lead, idLead)
 	if err != nil {
 		return err
 	}
-	err = m.insertHeroes(ctx, &lead.Heroes, idLead)
+	err = m.insertHeroes(ctx, &lead.Heroes, lead)
 	if err != nil {
 		return err
 	}
-	err = m.insertAssistants(ctx, &lead.Assistants, idLead)
+	err = m.insertAssistants(ctx, &lead.Assistants, lead)
 	if err != nil {
 		return err
 	}
@@ -165,7 +170,7 @@ func (m *postgresDBRepo) insertPrograms(ctx context.Context, programs *models.Le
 
 // Пакет функций для добавления рограмм в заказ (Лид) End-------------------------------------------------------------------------
 
-func (m *postgresDBRepo) insertHeroes(ctx context.Context, heroes *[]models.LeadHero, idLead int) error {
+func (m *postgresDBRepo) insertHeroes(ctx context.Context, heroes *[]models.LeadHero, lead *models.Lead) error {
 
 	queryInsertHeroes := `insert into lead_heroes
 	(id_hero, id_lead)
@@ -179,31 +184,97 @@ func (m *postgresDBRepo) insertHeroes(ctx context.Context, heroes *[]models.Lead
 
 	for _, hero := range *heroes {
 
-		_, err := m.DB.ExecContext(ctx, queryInsertHeroes, hero.HeroID, idLead)
+		_, err := m.DB.ExecContext(ctx, queryInsertHeroes, hero.HeroID, lead.ID)
 		if err != nil {
 			return err
 		}
 		if hero.ArtistID != 0 {
-			_, err := m.DB.ExecContext(ctx, queryInsertArtist, hero.ArtistID, idLead)
+			_, err := m.DB.ExecContext(ctx, queryInsertArtist, hero.ArtistID, lead.ID)
 			if err != nil {
 				return err
 			}
 		}
 
+		//Отправка сообщения артистам
+		chatID, err := m.getArtistChatID(ctx, hero.ArtistID)
+		if err != nil {
+			return err
+		}
+		if chatID != 0 && hero.NeedSendMessage {
+			text := "Вы назначены на заказ № " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Дата: " + "<strong>" + string(lead.Date.Format("02-01-2006")) + "</strong>" + "\n" + "Время: " + "<strong>" + string(lead.Time.Format("15:04")) + "</strong>"
+
+			m.App.MailChan <- modelsTelegram.MailData{
+				ChatID: chatID,
+				Text:   text,
+			}
+		}
 	}
 	return nil
 }
 
-func (m *postgresDBRepo) insertAssistants(ctx context.Context, assistants *[]models.Assistant, idLead int) error {
+func (m *postgresDBRepo) getArtistChatID(ctx context.Context, artistID int) (int64, error) {
+	querySelect := `select id_telegram_chat
+	from artists
+	where id_artist=$1
+	`
+
+	var chatID sql.NullInt64
+	var result int64
+	err := m.DB.QueryRowContext(ctx, querySelect, artistID).Scan(&chatID)
+	if err != nil {
+		return 0, err
+	}
+	if chatID.Valid {
+		result = chatID.Int64
+	} else {
+		return 0, nil
+	}
+	return result, nil
+}
+
+func (m *postgresDBRepo) getStoreChatID(ctx context.Context) (int64, error) {
+	querySelect := `select id_telegram_chat
+	from id_accounts
+	where access_level=3
+	`
+
+	var chatID sql.NullInt64
+	var result int64
+	err := m.DB.QueryRowContext(ctx, querySelect).Scan(&chatID)
+	if err != nil {
+		return 0, err
+	}
+	if chatID.Valid {
+		result = chatID.Int64
+	} else {
+		return 0, nil
+	}
+	return result, nil
+}
+
+func (m *postgresDBRepo) insertAssistants(ctx context.Context, assistants *[]models.Assistant, lead *models.Lead) error {
 	queryInsertAssistants := `insert into lead_assistants
 	(id_assistant, id_lead)
 	VALUES ($1, $2)
 	`
 
 	for _, assistant := range *assistants {
-		_, err := m.DB.ExecContext(ctx, queryInsertAssistants, assistant.ID, idLead)
+		_, err := m.DB.ExecContext(ctx, queryInsertAssistants, assistant.ID, lead.ID)
 		if err != nil {
 			return err
+		}
+		//Отправка сообщения ассистентам
+		chatID, err := m.getAssistantChatID(ctx, assistant.ID)
+		if err != nil {
+			return err
+		}
+		if chatID != 0 && assistant.NeedSendMessage {
+			text := "Вы назначены на заказ № " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Дата: " + "<strong>" + string(lead.Date.Format("02-01-2006")) + "</strong>" + "\n" + "Время: " + "<strong>" + string(lead.Time.Format("15:04")) + "</strong>"
+
+			m.App.MailChan <- modelsTelegram.MailData{
+				ChatID: chatID,
+				Text:   text,
+			}
 		}
 	}
 	return nil
@@ -662,6 +733,7 @@ func (m *postgresDBRepo) getHeroesByID(ctx context.Context, idLead int) ([]model
 		var artist models.Artist
 		var heroLead models.LeadHero
 		var artistID sql.NullInt64
+		var artistPhone sql.NullString
 		err := rows.Scan(&hero.ID, &artistID)
 		if err != nil {
 			return nil, err
@@ -671,19 +743,25 @@ func (m *postgresDBRepo) getHeroesByID(ctx context.Context, idLead int) ([]model
 			artist.ID = int(artistID.Int64)
 
 			queryArtist := `
-			select first_name, last_name
+			select first_name, last_name, phone_number
 			from artists
 			where id_artist=$1
 			`
 			err := m.DB.QueryRowContext(ctx, queryArtist, artist.ID).Scan(
 				&artist.FirstName,
-				&artist.LastName)
+				&artist.LastName,
+				&artistPhone,
+			)
 			if err != nil {
 				return nil, err
 			}
 			heroLead.ArtistFirstName = artist.FirstName
 			heroLead.ArtistID = artist.ID
 			heroLead.ArtistLastName = artist.LastName
+			if artistPhone.Valid {
+				heroLead.PhoneNumber = artistPhone.String
+			}
+
 		}
 
 		queryHero := `
@@ -928,7 +1006,7 @@ func (m *postgresDBRepo) DeleteLeadByID(idLead int) error {
 
 }
 
-// Update lead start
+// Update lead start______________________________________________________________________________________
 func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
@@ -941,6 +1019,128 @@ func (m *postgresDBRepo) UpdateLead(lead *models.Lead) error {
 	err = m.updateChild(ctx, &lead.Child)
 	if err != nil {
 		return err
+	}
+
+	LeadInfo, err := m.GetLeadByID(lead.ID)
+	if err != nil {
+		return err
+	}
+
+	if LeadInfo.Address != lead.Address {
+		for _, assistant := range LeadInfo.Assistants {
+			chatID, err := m.getAssistantChatID(ctx, assistant.ID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новый адрес: " + "<strong>" + lead.Address + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+		for _, heroArtist := range LeadInfo.Heroes {
+			chatID, err := m.getArtistChatID(ctx, heroArtist.ArtistID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новый адрес: " + "<strong>" + lead.Address + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+	}
+
+	if LeadInfo.Date != lead.Date {
+		for _, assistant := range LeadInfo.Assistants {
+			chatID, err := m.getAssistantChatID(ctx, assistant.ID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новая дата: " + "<strong>" + string(lead.Date.Format("02-01-2006")) + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+		for _, heroArtist := range LeadInfo.Heroes {
+			chatID, err := m.getArtistChatID(ctx, heroArtist.ArtistID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новая дата: " + "<strong>" + string(lead.Date.Format("02-01-2006")) + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+		chatID, err := m.getStoreChatID(ctx)
+		if err != nil {
+			return err
+		}
+		if chatID != 0 {
+			text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новая дата: " + "<strong>" + string(lead.Date.Format("02-01-2006")) + "</strong>"
+
+			m.App.MailChan <- modelsTelegram.MailData{
+				ChatID: chatID,
+				Text:   text,
+			}
+		}
+	}
+
+	if LeadInfo.Time != lead.Time {
+		for _, assistant := range LeadInfo.Assistants {
+			chatID, err := m.getAssistantChatID(ctx, assistant.ID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новое время: " + "<strong>" + string(lead.Time.Format("15:04")) + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+		for _, heroArtist := range LeadInfo.Heroes {
+			chatID, err := m.getArtistChatID(ctx, heroArtist.ArtistID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новое время: " + "<strong>" + string(lead.Time.Format("15:04")) + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+		chatID, err := m.getStoreChatID(ctx)
+		if err != nil {
+			return err
+		}
+		if chatID != 0 {
+			text := "<strong>Изменеиние в заказе №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Новое время: " + "<strong>" + string(lead.Time.Format("15:04")) + "</strong>"
+
+			m.App.MailChan <- modelsTelegram.MailData{
+				ChatID: chatID,
+				Text:   text,
+			}
+		}
 	}
 
 	queryUpdateLead := `update leads
@@ -1038,35 +1238,172 @@ func (m *postgresDBRepo) updateClient(ctx context.Context, client *models.Client
 }
 
 func (m *postgresDBRepo) updateAssistants(ctx context.Context, lead *models.Lead) error {
+	assistants, err := m.getAssistantByID(ctx, lead.ID)
+	if err != nil {
+		return err
+	}
+
+	for i := range lead.Assistants {
+		lead.Assistants[i].NeedSendMessage = true
+	}
+
+	for i := range assistants {
+		assistants[i].Canceled = true
+	}
+
+	//Сравниваем артистов которые уже были занесены в таблицу с новыми артистами
+	for i := range assistants {
+		for y := range lead.Assistants {
+			if assistants[i].ID == lead.Assistants[y].ID {
+				assistants[i].Canceled = false
+				lead.Assistants[y].NeedSendMessage = false
+			}
+		}
+	}
+
+	for _, assistantTable := range assistants {
+		if assistantTable.ID != 0 && assistantTable.Canceled {
+			chatID, err := m.getAssistantChatID(ctx, assistantTable.ID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Вас сняли с заказа №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Дата: " + "<strong>" + string(lead.Date.Format("02-01-2006")) + "</strong>" + "\n" + "Время: " + "<strong>" + string(lead.Time.Format("15:04")) + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+	}
+
 	queryDelete := `
 	delete 
 	from lead_assistants
 	where id_lead=$1
 	`
-	_, err := m.DB.ExecContext(ctx, queryDelete, lead.ID)
+	_, err = m.DB.ExecContext(ctx, queryDelete, lead.ID)
 	if err != nil {
 		return err
 	}
 
-	err = m.insertAssistants(ctx, &lead.Assistants, lead.ID)
+	err = m.insertAssistants(ctx, &lead.Assistants, lead)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
+func (m *postgresDBRepo) getAssistantChatID(ctx context.Context, assistantID int) (int64, error) {
+	querySelect := `select id_telegram_chat
+	from assistants
+	where id_assistant=$1
+	`
+
+	var chatID sql.NullInt64
+	var result int64
+	err := m.DB.QueryRowContext(ctx, querySelect, assistantID).Scan(&chatID)
+	if err != nil {
+		return 0, err
+	}
+	if chatID.Valid {
+		result = chatID.Int64
+	} else {
+		return 0, nil
+	}
+	return result, nil
+}
+
+func (m *postgresDBRepo) getAssistantByID(ctx context.Context, leadID int) ([]models.Assistant, error) {
+	querySelect := `
+	select id_assistant
+	from lead_assistants
+	where id_lead = $1
+	`
+
+	rows, err := m.DB.QueryContext(ctx, querySelect, leadID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var assistants []models.Assistant
+	for rows.Next() {
+		var id int
+		err := rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+		assistant, err := m.GetAssistantByID(id)
+		if err != nil {
+			return nil, err
+		}
+
+		assistants = append(assistants, *assistant)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return assistants, nil
+
+}
+
 func (m *postgresDBRepo) updateHeroes(ctx context.Context, lead *models.Lead) error {
+
+	heroes, err := m.getHeroesByID(ctx, lead.ID)
+	if err != nil {
+		return err
+	}
+
+	for i := range lead.Heroes {
+		lead.Heroes[i].NeedSendMessage = true
+	}
+
+	for i := range heroes {
+		heroes[i].Canceled = true
+	}
+
+	//Сравниваем артистов которые уже были занесены в таблицу с новыми артистами
+	for i := range heroes {
+		for y := range lead.Heroes {
+			if heroes[i].ArtistID == lead.Heroes[y].ArtistID {
+				heroes[i].Canceled = false
+				lead.Heroes[y].NeedSendMessage = false
+			}
+		}
+	}
+
+	for _, heroTable := range heroes {
+		if heroTable.ArtistID != 0 && heroTable.Canceled {
+			chatID, err := m.getArtistChatID(ctx, heroTable.ArtistID)
+			if err != nil {
+				return err
+			}
+			if chatID != 0 {
+				text := "<strong>Вас сняли с заказа №</strong> " + "<strong>" + strconv.Itoa(lead.ID) + "</strong>" + "\n" + "Дата: " + "<strong>" + string(lead.Date.Format("02-01-2006")) + "</strong>" + "\n" + "Время: " + "<strong>" + string(lead.Time.Format("15:04")) + "</strong>"
+
+				m.App.MailChan <- modelsTelegram.MailData{
+					ChatID: chatID,
+					Text:   text,
+				}
+			}
+		}
+	}
+
 	queryDelete := `
 	delete 
 	from lead_heroes
 	where id_lead=$1
 	`
-	_, err := m.DB.ExecContext(ctx, queryDelete, lead.ID)
+	_, err = m.DB.ExecContext(ctx, queryDelete, lead.ID)
 	if err != nil {
 		return err
 	}
 
-	err = m.insertHeroes(ctx, &lead.Heroes, lead.ID)
+	err = m.insertHeroes(ctx, &lead.Heroes, lead)
 	if err != nil {
 		return err
 	}

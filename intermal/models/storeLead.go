@@ -15,4 +15,5 @@ type StoreLead struct {
 	LeadDescription  string
 	AmountOfChilds   int
 	Canceled         bool
+	Completed        bool
 }

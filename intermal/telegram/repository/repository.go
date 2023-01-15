@@ -22,4 +22,9 @@ type DatabaseRepoTelegram interface {
 	//Artist
 	GetAllLeadsOfArtistByChatID(chatID int64) ([]models.LeadList, error)
 	GetAllLeadsOfArtistTodayByChatID(chatID int64) ([]models.LeadList, error)
+	//Store
+	GetOrderStoreIDByLeadID(leadID int) ([]int, error)
+	//Assistant
+	GetAllLeadsOfAssistantByChatID(chatID int64) ([]models.LeadList, error)
+	GetAllLeadsOfAssistantTodayByChatID(chatID int64) ([]models.LeadList, error)
 }

@@ -48,6 +48,9 @@ type LeadHero struct {
 	HeroName        string
 	ArtistFirstName string
 	ArtistLastName  string
+	NeedSendMessage bool
+	PhoneNumber     string
+	Canceled        bool
 }
 
 type Child struct {

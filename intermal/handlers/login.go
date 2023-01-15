@@ -6,7 +6,6 @@ import (
 	"github.com/DaniilShd/RichShowPlatforma/intermal/forms"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/models"
 	"github.com/DaniilShd/RichShowPlatforma/intermal/render"
-	modelsTelegram "github.com/DaniilShd/RichShowPlatforma/intermal/telegram/models"
 )
 
 func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
@@ -17,11 +16,6 @@ func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	_ = m.App.Session.RenewToken(r.Context())
-
-	m.App.MailChan <- modelsTelegram.MailData{
-		ChatID: 379017783,
-		Text:   "Вход в систему",
-	}
 
 	var login string
 	var password string
